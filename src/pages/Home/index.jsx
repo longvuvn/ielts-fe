@@ -1,12 +1,15 @@
-import React from 'react'
-import HomeBanner from '../../components/home/HomeBanner'
+import HeroSection from "../../components/home/HeroSection";
+import CommunitySection from "../../components/home/CommunitySection";
+import SkillsSection from "../../components/home/SkillsSection";
 
-function HomePage() {
+const HomePage = () => {
   return (
-    <div>
-      <HomeBanner />
+    <div className="bg-white">
+      <HeroSection />
+      <SkillsSection />
+      <CommunitySection />
     </div>
-  )
-}
+  );
+};
 
-export default HomePage
+export default HomePage;
