@@ -1,5 +1,6 @@
 import React from "react";
 import { Menu } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   return (
@@ -27,7 +28,7 @@ const Header = () => {
         {/* Actions */}
         <div className="flex items-center gap-4">
           <button className="text-gray-700 font-medium hover:text-blue-500">
-            Sign In
+            <Link to="/Login"> Sign In</Link>
           </button>
           <button className="bg-black text-white px-6 py-2 rounded-lg font-semibold hover:bg-gray-800">
             Get Started
