@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import { Link } from "react-router-dom";
 import { User, Mail, Lock, CheckCircle } from "lucide-react";
 import { SignUpSchema } from "../../utils/validationSchema";
-import Input from "../../components/input/Input";
+import Input from "../../components/input/input";
 
 const RegisterPage = () => {
   const formik = useFormik({

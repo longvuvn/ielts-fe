@@ -21,10 +21,3 @@ export const SignUpSchema = Yup.object().shape({
         .required("Vui lòng xác nhận mật khẩu")
         .oneOf([Yup.ref("password")], "Mật khẩu xác nhận không khớp"),
 });
-
-
-
-
-
-
-
