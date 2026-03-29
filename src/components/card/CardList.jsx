@@ -1,5 +1,5 @@
 import React from "react";
-import FlaskCard from "./FlaskCard";
+import FlaskCard from "./FlashCard";
 
 const CardList = ({
   cards = [],

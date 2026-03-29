@@ -5,10 +5,10 @@ import "./index.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/error/ErrorPage.jsx";
 import HomePage from "./pages/Home/index.jsx";
-import LoginPage from "./pages/Auth/LoginPage.jsx";
-import RegisterPage from "./pages/Auth/RegisterPage.jsx";
 import LibraryPage from "./pages/Library/index.jsx";
-
+import { AuthProvider } from "./contexts/AuthContext.jsx";
+import AdminLoginPage from "./pages/Admin/AdminLoginPage.jsx";
+import UserLoginPage from "./pages/Auth/LoginPage.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -26,16 +26,16 @@ const router = createBrowserRouter([
     ],
   },
   {
-    path: "/login",
-    element: <LoginPage />,
+    path: "/admin-login",
+    element: <AdminLoginPage />,
   },
   {
-    path: "/register",
-    element: <RegisterPage />,
+    path: "/login",
+    element: <UserLoginPage />,
   },
 ]);
 createRoot(document.getElementById("root")).render(
-  // <StrictMode>
-  <RouterProvider router={router} />,
-  // {/* </StrictMode>, */}
+  <AuthProvider>
+    <RouterProvider router={router} />
+  </AuthProvider>,
 );
