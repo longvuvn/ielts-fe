@@ -6,10 +6,12 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ErrorPage from "./pages/error/ErrorPage.jsx";
 import HomePage from "./pages/Home/index.jsx";
 import LibraryPage from "./pages/Library/index.jsx";
+import ExamListPage from "./pages/Exam/index.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import AdminLoginPage from "./pages/Admin/AdminLoginPage.jsx";
 import UserLoginPage from "./pages/Auth/LoginPage.jsx";
 import FlashcardDetailPage from "./pages/detail/FlashCardPageDetail.jsx";
+import ProtectedRoute from "./routers/prive.jsx";
 
 const router = createBrowserRouter([
   {
@@ -22,8 +24,17 @@ const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "/library",
-        element: <LibraryPage />,
+        element: <ProtectedRoute />,
+        children: [
+          {
+            path: "/library",
+            element: <LibraryPage />,
+          },
+          {
+            path: "/exams",
+            element: <ExamListPage />,
+          },
+        ],
       },
     ],
   },
@@ -36,8 +47,17 @@ const router = createBrowserRouter([
     element: <UserLoginPage />,
   },
   {
-    path: "/flashcards/:flashcardId",
-    element: <FlashcardDetailPage />,
+    element: <ProtectedRoute />,
+    children: [
+      {
+        path: "/flashcards/:flashcardId",
+        element: <FlashcardDetailPage />,
+      },
+      {
+        path: "/exams/:examId",
+        element: <ExamListPage />, // Placeholder cho trang chi tiết đề thi
+      },
+    ],
   },
 ]);
 createRoot(document.getElementById("root")).render(

@@ -23,11 +23,15 @@ instance.interceptors.request.use(function (config) {
 
 instance.interceptors.response.use(function (response) {
     NProgress.done();
-    if (response.data && response.data.data) return response.data;
-    return response;
+    // Nếu API trả về cấu trúc có trường 'data' lồng nhau, ta có thể bóc tách ở đây
+    // Tuy nhiên để tương thích với code hiện tại của bạn, tôi sẽ trả về response.data
+    return response && response.data ? response.data : response;
 }, function (error) {
     NProgress.done();
-    if (error.response && error.response.data) return error.response.data;
+    // Thay vì return error.response.data (khiến nó thành resolve), ta phải dùng Promise.reject
+    if (error.response && error.response.data) {
+        return Promise.reject(error.response.data);
+    }
     return Promise.reject(error);
 });
 

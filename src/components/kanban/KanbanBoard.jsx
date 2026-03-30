@@ -15,8 +15,10 @@ const KanbanBoard = ({
   cardsByLibrary = {},
   isLoading,
   dragOverLibraryId,
+  onEditLibrary,
   onDeleteLibrary,
   onAddCard,
+  onEditCard,
   onDeleteCard,
   onClickCard,
   onDragStart,
@@ -25,6 +27,7 @@ const KanbanBoard = ({
   onDrop,
   onOpenCreateLibrary,
 }) => {
+// ... loading and empty state check ...
   if (isLoading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1, gap: "12px" }}>
@@ -84,8 +87,10 @@ const KanbanBoard = ({
           key={lib.id}
           library={lib}
           cards={cardsByLibrary[lib.id] || []}
+          onEditLibrary={onEditLibrary}
           onDeleteLibrary={onDeleteLibrary}
           onAddCard={onAddCard}
+          onEditCard={onEditCard}
           onDeleteCard={onDeleteCard}
           onClickCard={onClickCard}
           onDragStart={onDragStart}

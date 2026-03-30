@@ -1,12 +1,14 @@
 import React from "react";
-import { Plus, Trash2, BookOpen } from "lucide-react";
+import { Plus, Trash2, BookOpen, Settings2 } from "lucide-react";
 import FlashcardItem from "./FlashcardItem";
 
 const LibraryColumn = ({
   library,
   cards = [],
+  onEditLibrary,
   onDeleteLibrary,
   onAddCard,
+  onEditCard,
   onDeleteCard,
   onClickCard,
   onDragStart,
@@ -19,77 +21,48 @@ const LibraryColumn = ({
     <div
       onDragOver={(e) => onDragOver(e, library.id)}
       onDrop={(e) => onDrop(e, library.id)}
+      className="min-w-[260px] max-w-[260px] rounded-[18px] p-5 flex flex-col gap-3.5 transition-all duration-200 backdrop-blur-md shrink-0 self-start"
       style={{
-        minWidth: "260px",
-        maxWidth: "260px",
         background: isDragOver ? "rgba(99,179,255,0.08)" : "rgba(255,255,255,0.03)",
         border: isDragOver ? "2px dashed rgba(99,179,255,0.6)" : "1px solid rgba(255,255,255,0.08)",
-        borderRadius: "18px",
-        padding: "20px 16px",
-        display: "flex",
-        flexDirection: "column",
-        gap: "14px",
-        transition: "all 0.2s ease",
-        backdropFilter: "blur(8px)",
-        flexShrink: 0,
-        alignSelf: "flex-start",
       }}
     >
       {/* COLUMN HEADER */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", overflow: "hidden", flex: 1 }}>
-          <BookOpen size={15} style={{ color: "#60a5fa", flexShrink: 0 }} />
-          <span style={{
-            fontFamily: "'DM Mono', monospace",
-            fontWeight: "600",
-            fontSize: "13px",
-            color: "#e2e8f0",
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 overflow-hidden flex-1">
+          <BookOpen size={15} className="text-blue-400 shrink-0" />
+          <span className="font-mono font-semibold text-sm text-[#e2e8f0] truncate">
             {library.name}
           </span>
         </div>
 
-        <div style={{ display: "flex", gap: "6px", alignItems: "center", flexShrink: 0, marginLeft: "8px" }}>
-          <span style={{
-            background: "rgba(96,165,250,0.15)",
-            color: "#93c5fd",
-            borderRadius: "20px",
-            padding: "2px 8px",
-            fontSize: "11px",
-            fontFamily: "'DM Mono', monospace",
-          }}>
+        <div className="flex gap-1.5 items-center shrink-0 ml-2">
+          <span className="bg-blue-400/15 text-blue-300 rounded-full px-2 py-0.5 text-[11px] font-mono">
             {cards.length}
           </span>
 
           <button
+            onClick={() => onEditLibrary(library)}
+            title="Sửa thư viện"
+            className="bg-white/5 border-none rounded-lg text-gray-400 cursor-pointer p-1.5 flex items-center hover:bg-white/10 hover:text-white transition-all"
+          >
+            <Settings2 size={13} />
+          </button>
+
+          <button
             onClick={() => onAddCard(library.id)}
             title="Thêm flashcard mới"
-            style={{
-              background: "rgba(99,179,255,0.15)",
-              border: "none", borderRadius: "8px", color: "#60a5fa",
-              cursor: "pointer", padding: "5px", display: "flex", alignItems: "center", transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(99,179,255,0.28)"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(99,179,255,0.15)"}
+            className="bg-blue-400/15 border-none rounded-lg text-blue-400 cursor-pointer p-1.5 flex items-center hover:bg-blue-400/30 transition-all"
           >
-            <Plus size={14} />
+            <Plus size={13} />
           </button>
 
           <button
             onClick={() => onDeleteLibrary(library.id)}
             title="Xóa thư viện"
-            style={{
-              background: "rgba(248,113,113,0.1)",
-              border: "none", borderRadius: "8px", color: "#f87171",
-              cursor: "pointer", padding: "5px", display: "flex", alignItems: "center", transition: "background 0.2s",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(248,113,113,0.25)"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(248,113,113,0.1)"}
+            className="bg-red-400/10 border-none rounded-lg text-red-400 cursor-pointer p-1.5 flex items-center hover:bg-red-400/25 transition-all"
           >
-            <Trash2 size={14} />
+            <Trash2 size={13} />
           </button>
         </div>
       </div>
@@ -136,6 +109,7 @@ const LibraryColumn = ({
             <FlashcardItem
               key={card.id}
               card={card}
+              onEdit={onEditCard}
               onDelete={onDeleteCard}
               onClickCard={onClickCard}
               onDragStart={onDragStart}

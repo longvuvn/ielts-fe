@@ -1,4 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
 @import "tailwindcss";
+
 @utility perspective {
   perspective: 1000px;
 }
@@ -14,4 +16,12 @@
 
 @utility rotate-y-180 {
   transform: rotateY(180deg);
+}
+
+@theme {
+  --animate-fade-slide-in: fadeSlideIn 0.5s ease forwards;
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
