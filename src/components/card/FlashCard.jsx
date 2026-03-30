@@ -67,7 +67,7 @@ const FlaskCard = ({
           
           <div className="flex-1 flex items-center justify-center text-center overflow-y-auto custom-scrollbar">
             <p className="text-lg text-text-secondary leading-relaxed italic">
-              "{back}"
+              &quot;{back}&quot;
             </p>
           </div>
           

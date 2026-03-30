@@ -44,7 +44,7 @@ const LibraryColumn = ({
           <button
             onClick={() => onEditLibrary(library)}
             title="Sửa thư viện"
-            className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all"
+            className="p-1.5 rounded-lg text-text-muted hover:text-accent hover:bg-accent/10 transition-all"
           >
             <Settings2 size={14} />
           </button>
@@ -76,9 +76,9 @@ const LibraryColumn = ({
             <p className="text-text-muted text-[11px] mt-1 uppercase tracking-tight">Nhấn + để thêm</p>
           </div>
         ) : (
-          cards.map((card) => (
+          cards.map((card, index) => (
             <FlashcardItem
-              key={card.id}
+              key={`${card.id}-${index}`}
               card={card}
               onEdit={onEditCard}
               onDelete={onDeleteCard}

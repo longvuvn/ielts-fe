@@ -46,49 +46,58 @@ const VocabFlipCard = ({ vocab, onDelete, onEdit, onSpeak, index }) => {
         onClick={() => setFlipped(!flipped)}
       >
         {/* FRONT */}
-        <div className="absolute inset-0 backface-hidden premium-card p-6 flex flex-col items-center justify-between border-border-default hover:border-accent/40 hover:-translate-y-1.5 hover:shadow-[0_8px_32px_rgba(59,125,255,0.12)] transition-all duration-300">
+        <div className="absolute inset-0 backface-hidden premium-card p-6 flex flex-col items-center justify-between border-slate-200 hover:border-accent/40 hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgba(59,130,246,0.08)] transition-all duration-300">
           <div className="w-full flex justify-between items-start">
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em]">Word</span>
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-0.5 rounded-md">Word</span>
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
               <button
                 onClick={handleSpeak}
-                className={`p-1.5 rounded-lg text-text-muted hover:text-accent hover:bg-accent/10 transition-all relative overflow-hidden ${isRippling ? "text-accent" : ""}`}
+                className={`p-2 rounded-xl text-slate-400 hover:text-accent hover:bg-blue-50 transition-all relative overflow-hidden ${isRippling ? "text-accent" : ""}`}
               >
-                {isRippling && <span className="absolute inset-0 bg-accent/20 animate-ping rounded-full" />}
-                <Volume2 size={14} />
+                {isRippling && <span className="absolute inset-0 bg-accent/10 animate-ping rounded-full" />}
+                <Volume2 size={16} />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onEdit(vocab); }}
-                className="p-1.5 rounded-lg text-text-muted hover:text-warning hover:bg-warning/10 transition-all"
+                className="p-2 rounded-xl text-slate-400 hover:text-amber-500 hover:bg-amber-50 transition-all"
               >
-                <Edit2 size={14} />
+                <Edit2 size={16} />
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); onDelete(vocab.id); }}
-                className="p-1.5 rounded-lg text-text-muted hover:text-red-400 hover:bg-red-400/10 transition-all"
+                className="p-2 rounded-xl text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all"
               >
-                <Trash2 size={14} />
+                <Trash2 size={16} />
               </button>
             </div>
           </div>
-          <h3 className="text-2xl lg:text-[26px] font-bold text-text-primary text-center tracking-tight leading-tight group-hover:text-accent transition-colors duration-300 font-display">
-            {vocab.word}
-          </h3>
-          <div className="flex items-center gap-1.5 text-[10px] italic text-text-muted group-hover:text-accent/50 transition-colors">
+          <div className="text-center flex flex-col items-center">
+            <h3 className="text-2xl lg:text-[28px] font-bold text-slate-900 tracking-tight leading-tight group-hover:text-accent transition-colors duration-300 font-display">
+              {vocab.word}
+            </h3>
+            {vocab.phonetic || vocab.ipa ? (
+              <p className="text-sm font-mono text-accent/70 mt-2 font-medium bg-blue-50/50 px-3 py-0.5 rounded-full border border-blue-100/50">
+                /{vocab.phonetic || vocab.ipa}/
+              </p>
+            ) : (
+              <p className="text-[10px] font-mono text-slate-300 mt-2 italic">/no ipa/</p>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-300 group-hover:text-accent/40 transition-colors uppercase tracking-widest">
             <RotateCcw size={10} />
-            tap to flip
+            flip card
           </div>
         </div>
 
         {/* BACK */}
-        <div className="absolute inset-0 backface-hidden rotate-y-180 premium-card bg-elevated border-accent/30 p-6 flex flex-col items-center justify-between shadow-2xl">
-          <span className="text-[10px] font-bold text-accent uppercase tracking-[0.2em] w-full text-left">Definition</span>
+        <div className="absolute inset-0 backface-hidden rotate-y-180 premium-card bg-slate-900 border-slate-800 p-6 flex flex-col items-center justify-between shadow-2xl">
+          <span className="text-[10px] font-black text-accent uppercase tracking-widest w-full text-left">Definition</span>
           <div className="flex-1 flex items-center justify-center py-4">
-            <p className="text-[14px] text-text-secondary text-center leading-relaxed font-medium line-clamp-4">
+            <p className="text-[15px] text-white text-center leading-relaxed font-medium line-clamp-5 px-2">
               {vocab.userDefinition}
             </p>
           </div>
-          <div className="text-[10px] font-bold text-text-muted uppercase tracking-tight">
+          <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
             tap to flip back
           </div>
         </div>
@@ -103,158 +112,87 @@ const SearchModal = ({ isOpen, onClose, searchQuery, setSearchQuery, searchResul
 
   return (
     <div
-      className="fixed inset-0 z-[500] flex items-start justify-center pt-[8vh] px-4"
-      style={{ background: "rgba(4,8,20,0.82)", backdropFilter: "blur(14px)" }}
+      className="fixed inset-0 z-[500] flex items-start justify-center pt-[12vh] px-4 backdrop-blur-sm bg-slate-900/30"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xl animate-fade-slide-in"
-        style={{
-          background: "#0d1526",
-          border: "1px solid rgba(59,130,246,0.2)",
-          borderRadius: 18,
-          boxShadow: "0 40px 80px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04)",
-          overflow: "hidden",
-        }}
+        className="w-full max-w-2xl animate-fade-slide-in bg-white border border-slate-200 rounded-[32px] shadow-[0_30px_70px_rgba(0,0,0,0.15)] overflow-hidden"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg" style={{ background: "rgba(59,130,246,0.12)" }}>
-              <Sparkles size={14} className="text-blue-400" />
+        <div className="flex items-center justify-between px-8 py-6 border-b border-slate-50">
+          <div className="flex items-center gap-3">
+            <div>
+              <span className="text-lg font-bold text-slate-900 block font-display">Tra cứu từ vựng</span>
             </div>
-            <span className="text-sm font-bold text-text-primary">Tìm từ vựng thông minh</span>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg transition-all"
-            style={{ color: "#3d5275" }}
-            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "#f0f4ff"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#3d5275"; }}
+            className="p-2.5 rounded-2xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all"
           >
-            <X size={16} />
+            <X size={20} />
           </button>
         </div>
 
         {/* Search Input */}
-        <div className="px-4 py-3">
-          <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2" size={16} style={{ color: "#3d5275" }} />
+        <div className="px-8 py-6">
+          <div className="relative group">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent transition-colors" size={20} />
             <input
               autoFocus
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Nhập từ tiếng Anh để tra cứu..."
-              style={{
-                width: "100%",
-                background: "#070d1b",
-                border: "1px solid rgba(255,255,255,0.08)",
-                borderRadius: 10,
-                color: "#f0f4ff",
-                padding: "10px 14px 10px 38px",
-                fontSize: 14,
-                outline: "none",
-                transition: "border 0.15s, box-shadow 0.15s",
-              }}
-              onFocus={e => {
-                e.target.style.border = "1px solid rgba(59,125,255,0.45)";
-                e.target.style.boxShadow = "0 0 0 3px rgba(59,125,255,0.12)";
-              }}
-              onBlur={e => {
-                e.target.style.border = "1px solid rgba(255,255,255,0.08)";
-                e.target.style.boxShadow = "none";
-              }}
+              className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl pl-14 pr-6 py-4 text-slate-900 font-medium placeholder-slate-400 outline-none transition-all focus:border-accent/20 focus:bg-white focus:ring-4 focus:ring-accent/5"
             />
           </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ height: 1, background: "rgba(255,255,255,0.05)", margin: "0 16px" }} />
-
         {/* Results */}
-        <div
-          className="overflow-y-auto"
-          style={{
-            maxHeight: 340,
-            padding: "8px 12px 14px",
-            scrollbarWidth: "thin",
-            scrollbarColor: "#1a2a40 transparent",
-          }}
-        >
+        <div className="px-4 pb-8 max-h-[400px] overflow-y-auto">
           {isSearching ? (
-            <div className="flex flex-col gap-2 pt-1">
-              {[1, 2, 3, 4].map(i => (
-                <div
-                  key={i}
-                  className="h-12 rounded-xl animate-pulse"
-                  style={{ background: "rgba(255,255,255,0.04)" }}
-                />
+            <div className="flex flex-col gap-3 px-4">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="h-16 rounded-2xl bg-slate-50 animate-pulse" />
               ))}
             </div>
           ) : searchResults.length > 0 ? (
-            <div className="flex flex-col gap-1 pt-1">
+            <div className="flex flex-col gap-2 px-4">
               {searchResults.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all"
-                  style={{ cursor: "default" }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.background = "rgba(59,130,246,0.07)";
-                    e.currentTarget.style.border = "1px solid rgba(59,130,246,0.18)";
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.background = "transparent";
-                    e.currentTarget.style.border = "1px solid transparent";
-                  }}
+                  className="flex items-center gap-4 p-4 rounded-2xl transition-all border border-transparent hover:border-slate-100 hover:bg-blue-50/30 group"
                 >
-                  {/* Word info */}
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold" style={{ color: "#f0f4ff" }}>
+                    <p className="font-bold text-slate-900 group-hover:text-accent transition-colors">
                       {item.word}
                     </p>
-                    <p className="text-xs mt-0.5 truncate" style={{ color: "#7a90b8" }}>
+                    <p className="text-sm text-slate-500 mt-0.5 truncate italic">
                       {fixDefinitionText(item.definition || item.meaning || "")}
                     </p>
                   </div>
-
-                  {/* Add button */}
                   <button
                     onClick={() => onAdd(item)}
-                    style={{
-                      flexShrink: 0,
-                      width: 30,
-                      height: 30,
-                      borderRadius: 8,
-                      background: "rgba(59,130,246,0.1)",
-                      color: "#60a5fa",
-                      border: "none",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transition: "all 0.15s",
-                      cursor: "pointer",
-                    }}
-                    onMouseEnter={e => { e.currentTarget.style.background = "#3b7dff"; e.currentTarget.style.color = "#fff"; }}
-                    onMouseLeave={e => { e.currentTarget.style.background = "rgba(59,130,246,0.1)"; e.currentTarget.style.color = "#60a5fa"; }}
+                    className="flex-shrink-0 w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-400 hover:bg-accent hover:text-white hover:border-accent transition-all flex items-center justify-center shadow-sm active:scale-95"
                   >
-                    <Plus size={15} />
+                    <Plus size={18} />
                   </button>
                 </div>
               ))}
             </div>
           ) : searchQuery.trim() ? (
-            <div className="flex flex-col items-center py-10 text-center">
-              <SearchIcon size={28} style={{ color: "#3d5275", opacity: 0.4, marginBottom: 10 }} />
-              <p className="text-sm" style={{ color: "#3d5275" }}>
-                Không tìm thấy kết quả cho{" "}
-                <span style={{ color: "#7a90b8", fontWeight: 600 }}>"{searchQuery}"</span>
+            <div className="flex flex-col items-center py-12 text-center">
+              <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+                <SearchIcon size={24} className="text-slate-300" />
+              </div>
+              <p className="text-slate-400 text-sm font-medium">
+                Không tìm thấy kết quả cho <span className="text-slate-900">&quot;{searchQuery}&quot;</span>
               </p>
             </div>
           ) : (
-            <div className="flex flex-col items-center py-10 text-center">
-              <Search size={28} style={{ color: "#3d5275", opacity: 0.25, marginBottom: 10 }} />
-              <p className="text-sm" style={{ color: "#3d5275" }}>Nhập từ để bắt đầu tìm kiếm</p>
+            <div className="flex flex-col items-center py-12 text-center">
+              <Search size={32} className="text-slate-200 mb-4" />
+              <p className="text-slate-400 text-sm font-medium">Hãy nhập từ vựng để bắt đầu</p>
             </div>
           )}
         </div>
@@ -269,25 +207,25 @@ const EditVocabModal = ({ isOpen, onClose, vocab, onSave }) => {
   
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-page/80 backdrop-blur-md flex items-center justify-center z-[3000] p-6" onClick={onClose}>
-      <div className="bg-card border border-border-default rounded-[24px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in" onClick={e => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[3000] p-6" onClick={onClose}>
+      <div className="bg-white border border-slate-200 rounded-[32px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h3 className="text-2xl font-bold font-display text-text-primary">Sửa định nghĩa</h3>
-            <p className="text-text-secondary text-xs mt-1">Cập nhật ý nghĩa cho <span className="text-accent font-bold">{vocab?.word}</span></p>
+            <h3 className="text-2xl font-bold font-display text-slate-900">Sửa định nghĩa</h3>
+            <p className="text-slate-500 text-sm mt-1">Cập nhật ý nghĩa cho <span className="text-accent font-bold">{vocab?.word}</span></p>
           </div>
-          <button onClick={onClose} className="p-2 text-text-muted hover:text-text-primary hover:bg-white/5 rounded-xl transition-colors"><X size={20} /></button>
+          <button onClick={onClose} className="p-2.5 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-2xl transition-colors"><X size={20} /></button>
         </div>
         <textarea
           autoFocus
           value={definition}
           onChange={e => setDefinition(e.target.value)}
-          className="premium-input w-full min-h-[140px] resize-none leading-relaxed"
+          className="premium-input w-full min-h-[160px] resize-none leading-relaxed bg-slate-50 border-transparent focus:bg-white"
           placeholder="Nhập nghĩa của từ..."
         />
         <div className="flex gap-3 mt-10">
-          <Button variant="ghost" className="flex-1" onClick={onClose}>Hủy</Button>
-          <Button variant="primary" className="flex-1" onClick={() => onSave(definition)}>Lưu thay đổi</Button>
+          <Button variant="ghost" className="flex-1 rounded-2xl h-14" onClick={onClose}>Hủy bỏ</Button>
+          <Button variant="primary" className="flex-1 rounded-2xl h-14 shadow-lg shadow-blue-500/20" onClick={() => onSave(definition)}>Lưu thay đổi</Button>
         </div>
       </div>
     </div>
@@ -309,26 +247,26 @@ const StudyMode = ({ vocabs, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-page/98 backdrop-blur-3xl flex flex-col z-[2000] p-8 lg:p-12 overflow-hidden animate-fade-slide-in">
-      <div className="flex justify-between items-center mb-12">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-accent/10 text-accent rounded-xl"><Target size={20} /></div>
+    <div className="fixed inset-0 bg-white z-[2000] flex flex-col p-8 lg:p-12 overflow-hidden animate-fade-slide-in">
+      <div className="flex justify-between items-center mb-12 max-w-7xl mx-auto w-full">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-blue-50 text-accent rounded-2xl shadow-sm border border-blue-100"><Target size={24} /></div>
           <div>
-            <h2 className="text-text-primary font-bold font-display text-lg">Active Recall Session</h2>
-            <p className="text-text-muted text-[10px] font-bold uppercase tracking-widest mt-0.5">Mastering {vocabs.length} Key Terms</p>
+            <h2 className="text-slate-900 font-bold font-display text-xl">Luyện tập ghi nhớ</h2>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-0.5">Mastering {vocabs.length} Key Terms</p>
           </div>
         </div>
-        <button onClick={onClose} className="p-3 text-text-muted hover:text-text-primary hover:bg-white/5 rounded-2xl transition-all border border-transparent hover:border-border-default">
+        <button onClick={onClose} className="p-3.5 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-[20px] transition-all border border-slate-100">
           <X size={24} />
         </button>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full">
         <div className="flex items-center gap-6 mb-16 w-full max-w-md">
-          <span className="text-text-muted font-mono text-xs font-bold">{index + 1} / {vocabs.length}</span>
-          <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <span className="text-slate-400 font-mono text-xs font-bold">{index + 1} / {vocabs.length}</span>
+          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-accent shadow-[0_0_12px_rgba(59,125,255,0.5)] transition-all duration-500 ease-out"
+              className="h-full bg-accent shadow-[0_0_15px_rgba(59,125,255,0.4)] transition-all duration-500 ease-out"
               style={{ width: `${((index + 1) / vocabs.length) * 100}%` }}
             />
           </div>
@@ -339,25 +277,26 @@ const StudyMode = ({ vocabs, onClose }) => {
             onClick={() => setFlipped(!flipped)}
             className={`relative w-full h-full transition-all duration-700 preserve-3d cursor-pointer ${flipped ? "rotate-y-180" : ""}`}
           >
-            <div className="absolute inset-0 backface-hidden rounded-[40px] premium-card bg-gradient-to-br from-[#0d1526] to-[#070d1b] border-accent/20 flex flex-col items-center justify-center p-12 text-center shadow-2xl">
-              <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] mb-12">Word to Recall</span>
-              <p className="text-5xl lg:text-7xl font-bold font-display text-text-primary mb-12 tracking-tight">{current?.word}</p>
-              <Button variant="secondary" onClick={(e) => { e.stopPropagation(); speak(current?.word); }} className="h-12 px-8" icon={Volume2}>
+            <div className="absolute inset-0 backface-hidden rounded-[48px] premium-card bg-white border-slate-200 flex flex-col items-center justify-center p-12 text-center shadow-xl">
+              <span className="text-[11px] font-black text-accent uppercase tracking-[0.4em] mb-12 bg-blue-50 px-4 py-1.5 rounded-full">Word to Recall</span>
+              <p className="text-5xl lg:text-7xl font-bold font-display text-slate-900 mb-4 tracking-tight">{current?.word}</p>
+              {current?.phonetic && <p className="text-xl font-mono text-slate-400 mb-12">/{current.phonetic}/</p>}
+              <Button variant="secondary" onClick={(e) => { e.stopPropagation(); speak(current?.word); }} className="h-14 px-10 rounded-2xl" icon={Volume2}>
                 Listen Pronunciation
               </Button>
             </div>
-            <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-[40px] premium-card bg-elevated border-success/30 flex flex-col items-center justify-center p-12 text-center shadow-2xl">
-              <span className="text-[10px] font-bold text-success uppercase tracking-[0.4em] mb-12">Correct Definition</span>
-              <p className="text-2xl lg:text-4xl font-medium leading-relaxed text-text-primary font-display">{current?.userDefinition}</p>
+            <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-[48px] premium-card bg-slate-900 border-slate-800 flex flex-col items-center justify-center p-12 text-center shadow-2xl">
+              <span className="text-[11px] font-black text-accent uppercase tracking-[0.4em] mb-12">Correct Definition</span>
+              <p className="text-2xl lg:text-4xl font-bold leading-relaxed text-white font-display px-4">{current?.userDefinition}</p>
             </div>
           </div>
         </div>
 
         <div className="flex gap-8 mt-20">
-          <button disabled={index === 0} onClick={() => go(-1)} className="w-16 h-16 rounded-2xl bg-white/5 border border-border-default text-text-primary disabled:opacity-10 hover:bg-white/10 hover:border-accent/40 transition-all active:scale-90 flex items-center justify-center">
+          <button disabled={index === 0} onClick={() => go(-1)} className="w-16 h-16 rounded-2xl bg-white border-2 border-slate-100 text-slate-400 disabled:opacity-30 hover:text-accent hover:border-accent/30 transition-all active:scale-90 flex items-center justify-center shadow-sm">
             <ChevronLeft size={32} />
           </button>
-          <button disabled={index === vocabs.length - 1} onClick={() => go(1)} className="w-20 h-20 rounded-2xl bg-accent text-white shadow-xl shadow-accent/25 disabled:opacity-10 hover:brightness-110 transition-all active:scale-90 flex items-center justify-center">
+          <button disabled={index === vocabs.length - 1} onClick={() => go(1)} className="w-24 h-20 rounded-[24px] bg-accent text-white shadow-2xl shadow-blue-500/30 disabled:opacity-30 hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center">
             <ChevronRight size={40} />
           </button>
         </div>
@@ -378,13 +317,13 @@ const FlashcardDetailPage = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showManualAdd, setShowManualAdd] = useState(false);
+  
   const [manualWord, setManualWord] = useState("");
   const [manualMeaning, setManualMeaning] = useState("");
+  
   const [editingVocab, setEditingVocab] = useState(null);
 
-  useEffect(() => { if (flashcardId) fetchVocabs(); }, [flashcardId]);
-
-  const fetchVocabs = async () => {
+  const fetchVocabs = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await getVocabulariesByFlashcardIdAPI(flashcardId);
@@ -396,7 +335,9 @@ const FlashcardDetailPage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [flashcardId]);
+
+  useEffect(() => { if (flashcardId) fetchVocabs(); }, [flashcardId, fetchVocabs]);
 
   const handleSearch = useCallback(async (query) => {
     if (!query.trim()) { setSearchResults([]); return; }
@@ -413,8 +354,20 @@ const FlashcardDetailPage = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, handleSearch]);
 
+  const addVocab = async (word, userDefinition) => {
+    try {
+      const res = await createDeckVocabularyAPI({ flashcardId, word, userDefinition });
+      if (res?.status === 201 || res?.status === 200) {
+        message.success(`Đã thêm "${word}"!`); await fetchVocabs();
+      } else { message.error("Thêm thất bại!"); }
+    } catch { message.error("Không thể thêm từ vựng!"); }
+  };
+
   const handleManualAdd = async () => {
-    if (!manualWord.trim() || !manualMeaning.trim()) return;
+    if (!manualWord.trim() || !manualMeaning.trim()) {
+      message.warning("Vui lòng nhập đầy đủ từ vựng và định nghĩa!");
+      return;
+    }
     await addVocab(manualWord.trim(), manualMeaning.trim());
     setManualWord(""); setManualMeaning(""); setShowManualAdd(false);
   };
@@ -424,15 +377,6 @@ const FlashcardDetailPage = () => {
     setManualWord(word); setManualMeaning("");
     setShowManualAdd(true); setShowSearch(false);
     message.info(`Đã chọn từ "${word}", hãy nhập nghĩa của bạn.`);
-  };
-
-  const addVocab = async (word, userDefinition) => {
-    try {
-      const res = await createDeckVocabularyAPI({ flashcardId, word, userDefinition });
-      if (res?.status === 201 || res?.status === 200) {
-        message.success(`Đã thêm "${word}"!`); await fetchVocabs();
-      } else { message.error("Thêm thất bại!"); }
-    } catch { message.error("Không thể thêm từ vựng!"); }
   };
 
   const handleDeleteVocab = async (vocabId) => {
@@ -468,34 +412,34 @@ const FlashcardDetailPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-page text-text-primary animate-fade-slide-in flex flex-col">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 animate-fade-slide-in flex flex-col">
       {/* ── TOPBAR ── */}
-      <div className="sticky top-0 z-[100] border-b border-border-default bg-page/40 backdrop-blur-xl">
+      <div className="sticky top-0 z-[100] border-b border-slate-100 bg-white/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-[1600px] mx-auto px-8 py-6 flex items-center justify-between">
           <div className="flex items-center gap-8">
-            <Button variant="ghost" onClick={() => navigate(-1)} icon={ArrowLeft} className="px-4">Quay lại</Button>
+            <Button variant="ghost" onClick={() => navigate(-1)} icon={ArrowLeft} className="px-5 border border-slate-100 rounded-2xl hover:bg-slate-50">Quay lại</Button>
             <div>
-              <h1 className="text-xl font-bold font-display text-text-primary m-0 tracking-tight">Chi tiết Flashcard</h1>
-              <p className="text-[10px] font-bold text-text-muted m-0 mt-0.5 uppercase tracking-widest">{vocabs.length} TỪ VỰNG SẴN SÀNG</p>
+              <h1 className="text-2xl font-bold font-display text-slate-900 m-0 tracking-tight leading-none">Chi tiết Flashcard</h1>
+              <p className="text-[11px] font-black text-slate-400 m-0 mt-2 uppercase tracking-[0.2em]">{vocabs.length} TỪ VỰNG TRONG BỘ SƯU TẬP</p>
             </div>
           </div>
           <div className="flex gap-3">
             {vocabs.length > 0 && (
-              <Button variant="primary" onClick={() => setStudyMode(true)} icon={Target} className="shadow-lg shadow-accent/20 px-6 h-11">
-                Luyện tập
+              <Button variant="primary" onClick={() => setStudyMode(true)} icon={Target} className="shadow-xl shadow-blue-500/20 px-8 h-12 rounded-[18px]">
+                Luyện tập ngay
               </Button>
             )}
             <button
               onClick={() => { setShowSearch(true); setSearchQuery(""); setSearchResults([]); }}
-              className="flex items-center gap-2 px-5 h-11 border border-border-default rounded-xl font-bold text-sm text-text-secondary hover:text-text-primary hover:border-accent/40 transition-all bg-white/2"
+              className="flex items-center gap-2.5 px-6 h-12 border border-slate-200 rounded-[18px] font-bold text-sm text-slate-600 hover:text-accent hover:border-accent/30 transition-all bg-white shadow-sm"
             >
-              <SearchIcon size={16} /> Tìm & Thêm
+              <SearchIcon size={18} /> Tra cứu & Thêm
             </button>
             <button
               onClick={() => setShowManualAdd(v => !v)}
-              className="flex items-center gap-2 px-5 h-11 bg-elevated border border-border-default rounded-xl font-bold text-sm text-text-primary hover:border-accent/40 transition-all shadow-xl"
+              className="flex items-center gap-2.5 px-6 h-12 bg-slate-900 text-white border border-slate-900 rounded-[18px] font-bold text-sm hover:bg-slate-800 transition-all shadow-lg"
             >
-              <Plus size={18} /> Thêm thủ công
+              <Plus size={20} /> Thêm thủ công
             </button>
           </div>
         </div>
@@ -512,56 +456,58 @@ const FlashcardDetailPage = () => {
         onAdd={handleAddFromSearch}
       />
 
-      <div className="flex-1 p-8 lg:p-10 max-w-[1600px] mx-auto w-full">
+      <div className="flex-1 p-8 lg:p-12 max-w-[1600px] mx-auto w-full">
         {/* MANUAL ADD PANEL */}
         {showManualAdd && (
-          <div
-            className="mb-10 animate-fade-slide-in relative overflow-hidden"
-            style={{
-              background: "#0d1526",
-              border: "1px solid rgba(255,255,255,0.07)",
-              borderRadius: 16,
-              padding: "28px 36px",
-            }}
-          >
-            <div className="absolute top-0 left-0 w-1 h-full" style={{ background: "#3b7dff", borderRadius: "4px 0 0 4px" }} />
+          <div className="mb-12 animate-fade-slide-in relative overflow-hidden bg-white border border-slate-200 rounded-[32px] p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+            <div className="absolute top-0 left-0 w-1.5 h-full bg-accent" />
             <button
               onClick={() => setShowManualAdd(false)}
-              className="absolute top-4 right-4 p-2 text-text-muted hover:text-text-primary hover:bg-white/5 rounded-xl transition-all"
+              className="absolute top-6 right-6 p-2.5 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-2xl transition-all"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 rounded-xl" style={{ background: "rgba(59,130,246,0.1)" }}>
-                <Plus size={16} className="text-accent" />
+            
+            <div className="flex items-center gap-4 mb-10">
+              <div className="p-3 bg-blue-50 text-accent rounded-2xl shadow-sm border border-blue-100">
+                <Plus size={20} />
               </div>
-              <h3 className="text-base font-bold text-text-primary font-display">Thêm từ vựng mới</h3>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4 mb-6">
               <div>
-                <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2 block">Tiếng Anh *</label>
+                <h3 className="text-xl font-bold text-slate-900 font-display leading-tight">Thêm từ vựng thủ công</h3>
+                <p className="text-slate-500 text-sm mt-0.5 font-medium">Xây dựng vốn từ vựng cá nhân của bạn</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Từ vựng (English) *</label>
                 <input
                   autoFocus
                   value={manualWord}
                   onChange={e => setManualWord(e.target.value)}
-                  className="w-full premium-input h-11"
-                  placeholder="e.g. Persistence"
+                  className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl px-6 h-14 text-slate-900 font-bold placeholder-slate-300 outline-none transition-all focus:border-accent/20 focus:bg-white focus:ring-4 focus:ring-accent/5"
+                  placeholder="Ví dụ: Persistence"
                 />
               </div>
-              <div>
-                <label className="text-[10px] font-bold text-text-muted uppercase tracking-[0.2em] mb-2 block">Định nghĩa / Tiếng Việt *</label>
+
+              <div className="space-y-3">
+                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Định nghĩa (Vietnamese) *</label>
                 <input
                   value={manualMeaning}
                   onChange={e => setManualMeaning(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && handleManualAdd()}
-                  className="w-full premium-input h-11"
-                  placeholder="e.g. Sự kiên trì"
+                  className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl px-6 h-14 text-slate-900 font-bold placeholder-slate-300 outline-none transition-all focus:border-accent/20 focus:bg-white focus:ring-4 focus:ring-accent/5"
+                  placeholder="Ví dụ: Sự kiên trì"
                 />
               </div>
             </div>
-            <div className="flex justify-end">
-              <Button variant="primary" onClick={handleManualAdd} className="h-11 px-8 shadow-lg shadow-accent/20">
-                Lưu vào Flashcard
+
+            <div className="flex justify-end mt-10 gap-4">
+              <Button variant="ghost" onClick={() => setShowManualAdd(false)} className="h-14 px-8 rounded-2xl font-bold border border-slate-100">
+                Hủy bỏ
+              </Button>
+              <Button variant="primary" onClick={handleManualAdd} className="h-14 px-12 rounded-2xl shadow-2xl shadow-blue-500/30 font-bold">
+                Lưu vào bộ sưu tập
               </Button>
             </div>
           </div>
@@ -569,26 +515,26 @@ const FlashcardDetailPage = () => {
 
         {/* WORD CARD GRID */}
         {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-              <div key={i} className="aspect-[4/3] rounded-[16px] bg-white/5 animate-pulse border border-border-default" />
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
+              <div key={i} className="aspect-[4/3] rounded-[32px] bg-white border border-slate-100 animate-pulse shadow-sm" />
             ))}
           </div>
         ) : vocabs.length === 0 ? (
           <div className="flex flex-col items-center justify-center mt-20 text-center animate-fade-slide-in">
-            <div className="w-24 h-24 rounded-[32px] bg-accent/5 border border-accent/10 flex items-center justify-center mb-8 text-accent shadow-2xl">
-              <BookOpen size={48} />
+            <div className="w-32 h-32 rounded-[48px] bg-blue-50 border border-blue-100 flex items-center justify-center mb-8 text-accent shadow-inner">
+              <BookOpen size={56} />
             </div>
-            <h2 className="text-2xl lg:text-3xl font-bold text-text-primary font-display mb-3">Chưa có từ vựng nào</h2>
-            <p className="text-text-secondary max-w-sm mb-10 font-medium leading-relaxed">
-              Bắt đầu hành trình ghi nhớ bằng cách thêm những từ vựng đầu tiên.
+            <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 font-display mb-4 tracking-tight">Chưa có từ vựng nào</h2>
+            <p className="text-slate-500 max-w-sm mb-12 font-medium leading-relaxed">
+              Bắt đầu hành trình ghi nhớ bằng cách thêm những từ vựng đầu tiên của bạn.
             </p>
-            <Button variant="primary" icon={Plus} onClick={() => setShowManualAdd(true)} className="h-14 px-12 shadow-xl shadow-accent/20">
+            <Button variant="primary" icon={Plus} onClick={() => setShowManualAdd(true)} className="h-16 px-14 rounded-[24px] shadow-2xl shadow-blue-500/20 text-lg">
               Thêm từ vựng ngay
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
             {vocabs.map((vocab, i) => (
               <VocabFlipCard
                 key={vocab.id}

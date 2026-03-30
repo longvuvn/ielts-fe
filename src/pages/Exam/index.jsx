@@ -21,9 +21,22 @@ const ExamListPage = () => {
     try {
       setIsLoading(true);
       const res = await getAllExamsAPI(page, pageSize);
+      console.log("Exam API Response:", res);
+      
       if (res && res.status === 200) {
-        setExams(res.data.content);
-        setTotalElements(res.data.totalElements);
+        // Handle case where response might be wrapped in { data: { content: [...] } }
+        const responseData = res.data?.data || res.data;
+        
+        if (Array.isArray(responseData)) {
+          setExams(responseData);
+          setTotalElements(responseData.length);
+        } else if (responseData?.content && Array.isArray(responseData.content)) {
+          setExams(responseData.content);
+          setTotalElements(responseData.totalElements || responseData.content.length);
+        } else {
+          setExams([]);
+          setTotalElements(0);
+        }
       }
     } catch (error) {
       console.error("Fetch exams error:", error);

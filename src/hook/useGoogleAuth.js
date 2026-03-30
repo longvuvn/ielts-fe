@@ -1,14 +1,12 @@
 // src/hooks/useGoogleAuth.js
 import { useState } from "react";
 import { message } from "antd";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "./useAuth";
 import { loginWithGoogleAPI } from "../service/api/api.auth";
-import { useNavigate } from "react-router-dom";
 
 export const useGoogleAuth = () => {
     const { loginWithGoogle, loginSuccess } = useAuth();
     const [isAuthLoading, setIsAuthLoading] = useState(false);
-    const navigate = useNavigate();
 
     const handleGoogleLogin = async (onSuccessCallback) => {
         try {

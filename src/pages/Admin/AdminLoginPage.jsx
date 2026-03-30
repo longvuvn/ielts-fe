@@ -5,7 +5,7 @@ import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { LoginSchema } from "../../utils/validationSchema";
 import Input from "../../components/input/Input";
 import { loginAPI } from "../../service/api/api.auth";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../hook/useAuth";
 import { message } from "antd";
 
 const AdminLoginPage = () => {

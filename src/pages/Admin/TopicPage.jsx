@@ -47,7 +47,7 @@ const TopicPage = () => {
         finalData = responseData.data;
       }
       setTopics(finalData);
-    } catch (error) {
+    } catch {
       message.error('Không thể tải danh sách chủ đề!');
     } finally {
       setLoading(false);
@@ -69,7 +69,7 @@ const TopicPage = () => {
         finalData = responseData.data;
       }
       setVocabularies(finalData);
-    } catch (error) {
+    } catch {
       message.error('Không thể tải danh sách từ vựng!');
     } finally {
       setVocabLoading(false);
@@ -101,7 +101,7 @@ const TopicPage = () => {
         message.success('Đã xóa từ vựng!');
         fetchVocabularies(selectedTopic.id);
       }
-    } catch (error) {
+    } catch {
       message.error('Lỗi khi xóa từ vựng!');
     }
   };
@@ -120,7 +120,7 @@ const TopicPage = () => {
       }
       setShowVocabModal(false);
       fetchVocabularies(selectedTopic.id);
-    } catch (error) {
+    } catch {
       message.error('Lỗi khi lưu từ vựng!');
     }
   };
