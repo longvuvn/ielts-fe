@@ -15,6 +15,11 @@ export const deleteDeckVocabularyAPI = (id) => {
     return axios.delete(`/api/v1/deck-vocabulary/${id}`);
 };
 
+// Cập nhật deck vocabulary
+export const updateDeckVocabularyAPI = (id, { flashcardId, vocabularyId, userDefinition, status = "ACTIVE" }) => {
+    return axios.put(`/api/v1/deck-vocabulary/${id}`, { flashcardId, vocabularyId, userDefinition, status });
+};
+
 // Search từ vựng từ dictionary
 export const searchVocabularyAPI = (word, page = 0, size = 10) => {
     return axios.get(`/api/v1/vocabularies/search?word=${encodeURIComponent(word)}&page=${page}&size=${size}`);
