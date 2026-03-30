@@ -31,6 +31,7 @@ export const useGoogleAuth = () => {
                     role: authResponseData.role,
                     name: authResponseData.fullName,
                     email: authResponseData.email,
+                    learnerId: authResponseData.learnerId
                 });
             } else {
                 // Nếu backend trả về status khác 200

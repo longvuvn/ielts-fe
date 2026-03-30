@@ -9,20 +9,21 @@ import LibraryPage from "./pages/Library/index.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import AdminLoginPage from "./pages/Admin/AdminLoginPage.jsx";
 import UserLoginPage from "./pages/Auth/LoginPage.jsx";
+import ExamList from "./pages/Writing/ExamList.jsx";
+import WritingWorkspace from "./pages/Writing/WritingWorkspace.jsx";
+import WritingResult from "./pages/Writing/WritingResult.jsx";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
     errorElement: <ErrorPage />,
     children: [
-      {
-        index: true,
-        element: <HomePage />,
-      },
-      {
-        path: "/library",
-        element: <LibraryPage />,
-      },
+      { index: true, element: <HomePage /> },
+      { path: "/library", element: <LibraryPage /> },
+      // Thêm các route Writing ở đây
+      { path: "/exams", element: <ExamList /> },
+      { path: "/writing/practice/:examId", element: <WritingWorkspace /> },
+      { path: "/writing/result", element: <WritingResult /> },
     ],
   },
   {
