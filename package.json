@@ -19,6 +19,7 @@
     "axios": "^1.13.4",
     "firebase": "^12.11.0",
     "formik": "^2.4.9",
+    "js-cookie": "^3.0.5",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.577.0",
     "nprogress": "^0.2.0",

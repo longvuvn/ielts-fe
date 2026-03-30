@@ -97,12 +97,6 @@ const ExamDetailPage = () => {
             </h1>
           </div>
           
-          <div className="flex items-center gap-3">
-             <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-full text-xs font-black uppercase tracking-widest border border-blue-100">
-                <Sparkles size={14} />
-                Chế độ giả lập thi thật
-             </div>
-          </div>
         </div>
       </div>
 

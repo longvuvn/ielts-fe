@@ -24,12 +24,16 @@ export const useGoogleAuth = () => {
                 const authResponseData = res.data;
                 message.success(`Chào mừng ${authResponseData.fullName}!`);
 
-                loginSuccess(authResponseData.accessToken, {
-                    learnerId: authResponseData.learnerId,
-                    role: authResponseData.role,
-                    name: authResponseData.fullName,
-                    email: authResponseData.email,
-                });
+                loginSuccess(
+                    authResponseData.accessToken, 
+                    authResponseData.refreshToken, // Pass refresh token here
+                    {
+                        learnerId: authResponseData.learnerId,
+                        role: authResponseData.role,
+                        name: authResponseData.fullName,
+                        email: authResponseData.email,
+                    }
+                );
 
                 if (onSuccessCallback) {
                     onSuccessCallback();

@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import {
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, signInWithGooglePopup } from "../config/firebase";
 import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "./AuthContextInstance";
+import Cookies from "js-cookie";
+import { logoutAPI } from "../service/api/api.auth";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -25,11 +24,10 @@ export const AuthProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const loginSuccess = (accessToken, userData) => {
+  const loginSuccess = (accessToken, refreshToken, userData) => {
     let decodedId = null;
     try {
       const decodedToken = jwtDecode(accessToken);
-      console.log("JWT Decoded:", decodedToken);
       decodedId =
         decodedToken.learnerId ||
         decodedToken.userId ||
@@ -46,6 +44,16 @@ export const AuthProvider = ({ children }) => {
     };
 
     localStorage.setItem("access_token", accessToken);
+    
+    // Set refresh token in cookie with 7 days expiration and security flags
+    if (refreshToken) {
+      Cookies.set("refresh_token", refreshToken, { 
+        expires: 7, 
+        secure: true, 
+        sameSite: 'strict' 
+      });
+    }
+
     localStorage.setItem("user_info", JSON.stringify(finalUser));
     setUser(finalUser);
     setIsAuthenticated(true);
@@ -57,9 +65,19 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
+    const refreshToken = Cookies.get("refresh_token");
+    if (refreshToken) {
+      try {
+        await logoutAPI(refreshToken);
+      } catch (error) {
+        console.error("Lỗi gọi API logout:", error);
+      }
+    }
+
     await signOut(auth);
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_info");
+    Cookies.remove("refresh_token");
     setUser(null);
     setIsAuthenticated(false);
   };

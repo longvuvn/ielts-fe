@@ -21,25 +21,30 @@ const AdminLoginPage = () => {
         setLoading(true);
         const res = await loginAPI(values.email, values.password);
         
-        // Kiểm tra res.data vì axios.customize trả về toàn bộ response
-        if (res && (res.status === 200 || res.status === 201)) {
-          const authData = res.data;
-          
-          if (authData.role !== "ADMIN") {
-            message.error("Tài khoản của bạn không có quyền truy cập Admin!");
-            return;
-          }
-
-          loginSuccess(authData.accessToken, {
-            learnerId: authData.learnerId,
-            role: authData.role,
-            name: authData.fullName,
-            email: authData.email,
-          });
-
-          message.success("Đăng nhập Admin thành công!");
-          navigate("/admin");
+        // axios.customize returns response.data, which is { data: {...}, status: 200, message: "..." }
+        const authResponse = res;
+        
+        // Truy cập vào authResponse.data để lấy thông tin user
+        const userData = authResponse?.data;
+        
+        if (!userData || userData.role !== "ADMIN") {
+          message.error("Tài khoản của bạn không có quyền truy cập Admin!");
+          return;
         }
+
+        loginSuccess(
+          userData.accessToken, 
+          userData.refreshToken,
+          {
+            learnerId: userData.learnerId,
+            role: userData.role,
+            name: userData.fullName,
+            email: userData.email,
+          }
+        );
+
+        message.success("Đăng nhập Admin thành công!");
+        navigate("/admin");
       } catch (error) {
         console.error("Admin Login Error Detail:", error);
         // Nếu backend trả về lỗi validation chi tiết trong error.response.data
