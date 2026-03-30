@@ -1,11 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Plus, X, Library } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Plus, Library } from "lucide-react";
 import { message } from "antd";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../hook/useAuth";
 import { useNavigate } from "react-router-dom";
 
 import KanbanBoard from "../../components/kanban/KanbanBoard";
 import Button from "../../components/button/button.home";
+import FlashcardModal from "../../components/modal/FlashcardModal";
+import CreateLibraryModal from "../../components/modal/CreateLibraryModal";
+import UpdateLibraryModal from "../../components/modal/UpdateLibraryModal";
+
 
 import {
   getAllLibrariesByLearnerIdAPI,
@@ -20,168 +24,11 @@ import {
   deleteFlashcardAPI,
 } from "../../service/api/api.flashcard";
 
-// ─── MODAL TẠO/SỬA LIBRARY ───────────────────────────────────────────────────
-const LibraryModal = ({ isOpen, onClose, onSubmit, initialData }) => {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [isPublic, setIsPublic] = useState(true);
-
-  useEffect(() => {
-    if (isOpen && initialData) {
-      setName(initialData.name || "");
-      setDescription(initialData.description || "");
-      setIsPublic(initialData.is_Public !== "False");
-    } else if (isOpen) {
-      setName("");
-      setDescription("");
-      setIsPublic(true);
-    }
-  }, [isOpen, initialData]);
-
-  const handleSubmit = () => {
-    if (!name.trim()) return;
-    onSubmit({ name: name.trim(), description: description.trim(), is_Public: isPublic });
-  };
-
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 bg-page/80 backdrop-blur-md flex items-center justify-center z-[1000] p-6" onClick={onClose}>
-      <div className="bg-card border border-border-default rounded-[24px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h3 className="text-text-primary font-display text-2xl font-bold tracking-tight">
-              {initialData ? "Chỉnh sửa Thư Viện" : "Tạo Thư Viện Mới"}
-            </h3>
-            <p className="text-text-secondary text-xs mt-1 font-medium">Tổ chức các bộ thẻ từ vựng của bạn</p>
-          </div>
-          <button onClick={onClose} className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-all">
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="space-y-6">
-          <div>
-            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Tên thư viện *</label>
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
-              placeholder="e.g. IELTS Academic Vocabulary"
-              className="premium-input w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Mô tả</label>
-            <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Mô tả ngắn về thư viện này..."
-              className="premium-input w-full"
-            />
-          </div>
-
-          <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-border-default cursor-pointer group" onClick={() => setIsPublic(!isPublic)}>
-            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isPublic ? 'bg-accent border-accent' : 'border-border-default group-hover:border-text-muted'}`}>
-              {isPublic && <div className="w-2 h-2 bg-white rounded-sm" />}
-            </div>
-            <div className="flex flex-col">
-              <span className="text-text-primary text-sm font-bold">Công khai thư viện</span>
-              <span className="text-text-muted text-[10px] font-medium uppercase tracking-tight">Mọi người có thể xem thư viện này</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-3 justify-end mt-10">
-          <Button variant="ghost" onClick={onClose}>Hủy</Button>
-          <Button variant="primary" onClick={handleSubmit} className="px-8 shadow-lg shadow-accent/20">
-            {initialData ? "Cập nhật" : "Tạo Thư Viện"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── MODAL TẠO/SỬA FLASHCARD ──────────────────────────────────────────────────
-const FlashcardModal = ({ isOpen, onClose, onSubmit, targetLibraryId, initialData }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-
-  useEffect(() => {
-    if (isOpen && initialData) {
-      setTitle(initialData.title || "");
-      setDescription(initialData.description || "");
-    } else if (isOpen) {
-      setTitle("");
-      setDescription("");
-    }
-  }, [isOpen, initialData]);
-
-  const handleSubmit = () => {
-    if (!title.trim()) return;
-    onSubmit({ title: title.trim(), description: description.trim(), libraryId: targetLibraryId });
-  };
-
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 bg-page/80 backdrop-blur-md flex items-center justify-center z-[1000] p-6" onClick={onClose}>
-      <div className="bg-card border border-border-default rounded-[24px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h3 className="text-text-primary font-display text-2xl font-bold tracking-tight">
-              {initialData ? "Chỉnh sửa Flashcard" : "Tạo Flashcard Mới"}
-            </h3>
-            <p className="text-text-secondary text-xs mt-1 font-medium">Thêm từ vựng mới vào bộ sưu tập</p>
-          </div>
-          <button onClick={onClose} className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-all">
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="space-y-6">
-          <div>
-            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Tên flashcard *</label>
-            <input
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
-              placeholder="e.g. Abandon (v)"
-              className="premium-input w-full"
-            />
-          </div>
-
-          <div>
-            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Mô tả (Định nghĩa/Ví dụ)</label>
-            <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Nhập nghĩa của từ hoặc ví dụ..."
-              rows={4}
-              className="premium-input w-full resize-none"
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-3 justify-end mt-10">
-          <Button variant="ghost" onClick={onClose}>Hủy</Button>
-          <Button variant="primary" onClick={handleSubmit} className="px-8 shadow-lg shadow-accent/20">
-            {initialData ? "Cập nhật" : "Tạo Flashcard"}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const LibraryPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const learnerId = user?.id ?? JSON.parse(localStorage.getItem("user_info") || "{}")?.id;
+  const learnerId = user?.learnerId || user?.id;
 
   const [libraries, setLibraries] = useState([]);
   const [cardsByLibrary, setCardsByLibrary] = useState({});
@@ -195,35 +42,20 @@ const LibraryPage = () => {
   const dragCard = useRef(null);
   const [dragOverLibraryId, setDragOverLibraryId] = useState(null);
 
-  useEffect(() => {
-    if (learnerId) fetchLibraries();
-  }, [learnerId]);
-
-  const fetchLibraries = async () => {
-    try {
-      setIsLoading(true);
-      const res = await getAllLibrariesByLearnerIdAPI(learnerId, 0, 50);
-      if (res && (res.status === 200 || res.status === 201)) {
-        const libs = res.data.content;
-        setLibraries(libs);
-        const cardResults = await Promise.all(libs.map((lib) => fetchCardsForLibrary(lib.id)));
-        const map = {};
-        libs.forEach((lib, i) => { map[lib.id] = cardResults[i]; });
-        setCardsByLibrary(map);
-      }
-    } catch (error) {
-      console.error("Fetch libraries error:", error);
-      message.error(error?.message || "Lỗi khi tải dữ liệu!");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchCardsForLibrary = async (libraryId) => {
+  const fetchCardsForLibrary = useCallback(async (libraryId) => {
     try {
       const res = await getFlashcardsByLibraryIdAPI(libraryId, 0, 50);
       if (res && (res.status === 200 || res.status === 201)) {
-        return res.data.content.map((c) => ({
+        let cards = [];
+        if (Array.isArray(res.data)) {
+          cards = res.data;
+        } else if (res.data?.content && Array.isArray(res.data.content)) {
+          cards = res.data.content;
+        } else if (res.data?.data && Array.isArray(res.data.data)) {
+          cards = res.data.data;
+        }
+        
+        return cards.map((c) => ({
           id: c.id,
           title: c.title || c.name,
           description: c.description,
@@ -238,7 +70,39 @@ const LibraryPage = () => {
       console.error("Error fetching flashcards:", error);
     }
     return [];
-  };
+  }, []);
+
+  const fetchLibraries = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await getAllLibrariesByLearnerIdAPI(learnerId, 0, 50);
+      if (res && (res.status === 200 || res.status === 201)) {
+        let libs = [];
+        if (Array.isArray(res.data)) {
+          libs = res.data;
+        } else if (res.data?.content && Array.isArray(res.data.content)) {
+          libs = res.data.content;
+        } else if (res.data?.data && Array.isArray(res.data.data)) {
+          libs = res.data.data;
+        }
+
+        setLibraries(libs);
+        const cardResults = await Promise.all(libs.map((lib) => fetchCardsForLibrary(lib.id)));
+        const map = {};
+        libs.forEach((lib, i) => { map[lib.id] = cardResults[i] || []; });
+        setCardsByLibrary(map);
+      }
+    } catch (error) {
+      console.error("Fetch libraries error:", error);
+      message.error(error?.message || "Lỗi khi tải dữ liệu!");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [learnerId, fetchCardsForLibrary]);
+
+  useEffect(() => {
+    if (learnerId) fetchLibraries();
+  }, [learnerId, fetchLibraries]);
 
   const handleOpenEditLibrary = (library) => {
     setEditingItem({ ...library, type: 'LIBRARY' });
@@ -251,11 +115,12 @@ const LibraryPage = () => {
     setShowCardModal(true);
   };
 
-  const handleCloseModals = () => {
+  const handleCloseModals = useCallback(() => {
     setShowLibraryModal(false);
     setShowCardModal(false);
     setEditingItem(null);
-  };
+    setTargetLibraryId(null);
+  }, []);
 
   const handleCreateLibrary = async ({ name, description, is_Public }) => {
     if (!learnerId) { message.error("Chưa đăng nhập!"); return; }
@@ -266,7 +131,7 @@ const LibraryPage = () => {
           createdAt: editingItem.createdAt,
           updatedAt: new Date().toISOString()
         });
-        if (res && res.status === 200) {
+        if (res && (res.status === 200 || res.status === 201)) {
           message.success("Cập nhật thành công!");
           handleCloseModals();
           fetchLibraries();
@@ -460,13 +325,19 @@ const LibraryPage = () => {
         />
       </div>
 
-      <LibraryModal 
-        isOpen={showLibraryModal} 
+      <CreateLibraryModal 
+        isOpen={showLibraryModal && !editingItem} 
         onClose={handleCloseModals} 
         onSubmit={handleCreateLibrary} 
-        initialData={editingItem && editingItem.type === 'LIBRARY' ? editingItem : null} 
+      />
+      <UpdateLibraryModal 
+        isOpen={showLibraryModal && editingItem?.type === 'LIBRARY'} 
+        onClose={handleCloseModals} 
+        onSubmit={handleCreateLibrary} 
+        initialData={editingItem} 
       />
       <FlashcardModal
+        key={editingItem?.id || 'card-new'}
         isOpen={showCardModal}
         onClose={handleCloseModals}
         onSubmit={handleCreateFlashcard}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { message, Skeleton, Input, Empty } from "antd";
 import { ArrowLeft, Clock, ChevronLeft, ChevronRight, CheckCircle, Info, Music } from "lucide-react";
@@ -158,30 +158,30 @@ const PracticePage = () => {
   const [passages, setPassages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [answers, setAnswers] = useState({});
-  const [timeLeft, setTimeLeft] = useState(3600);
+  const [timeLeft] = useState(3600);
 
-  useEffect(() => {
-    if (sectionId) fetchSectionContent();
-  }, [sectionId]);
-
-  useEffect(() => {
-    if (timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft((p) => p - 1), 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
-  const fetchSectionContent = async () => {
+  const fetchSectionContent = useCallback(async () => {
     try {
       setIsLoading(true);
       const res = await getSectionContentAPI(sectionId);
-      if (res?.status === 200) setPassages(res.data || []);
+      if (res?.status === 200) setPassages(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
       console.error("Fetch content error:", err);
       message.error("Không thể tải nội dung bài thi!");
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [sectionId]);
+
+  useEffect(() => {
+    if (sectionId) fetchSectionContent();
+  }, [sectionId, fetchSectionContent]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timer = setInterval(() => {}, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);

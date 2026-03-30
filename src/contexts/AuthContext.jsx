@@ -1,13 +1,11 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
-  signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth, signInWithGooglePopup } from "../config/firebase";
-import {jwtDecode} from "jwt-decode";
-
-const AuthContext = createContext();
+import { jwtDecode } from "jwt-decode";
+import { AuthContext } from "./AuthContextInstance";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -20,8 +18,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      // Logic đồng bộ Firebase nếu cần
+    const unsubscribe = onAuthStateChanged(auth, () => {
       setIsLoading(false);
     });
 
@@ -77,10 +74,4 @@ export const AuthProvider = ({ children }) => {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
 };

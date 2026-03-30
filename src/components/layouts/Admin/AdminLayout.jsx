@@ -11,7 +11,7 @@ import {
 } from '@ant-design/icons';
 import { Layout, Menu, Button, theme, Avatar, Dropdown, message } from 'antd';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAuth } from '../../../hook/useAuth';
 
 const { Header, Sider, Content } = Layout;
 

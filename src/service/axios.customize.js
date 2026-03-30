@@ -23,14 +23,11 @@ instance.interceptors.request.use(function (config) {
 
 instance.interceptors.response.use(function (response) {
     NProgress.done();
-    return response;
+    return response && response.data ? response.data : response;
 }, function (error) {
     NProgress.done();
-    if (error.response && error.response.status === 401) {
-        // Xử lý khi token hết hạn hoặc không hợp lệ
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('user_info');
-        // Có thể redirect về /login ở đây nếu cần
+    if (error.response && error.response.data) {
+        return Promise.reject(error.response.data);
     }
     return Promise.reject(error);
 });
