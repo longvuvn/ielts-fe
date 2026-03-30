@@ -10,22 +10,22 @@ import {jwtDecode} from "jwt-decode";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user_info");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return !!localStorage.getItem("access_token");
+  });
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    const userInfo = localStorage.getItem("user_info");
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      // Logic đồng bộ Firebase nếu cần
+      setIsLoading(false);
+    });
 
-    if (token && userInfo) {
-      setUser(JSON.parse(userInfo));
-      setIsAuthenticated(true);
-    } else {
-      setUser(null);
-      setIsAuthenticated(false);
-    }
-    setIsLoading(false);
+    return () => unsubscribe();
   }, []);
 
   const loginSuccess = (accessToken, userData) => {

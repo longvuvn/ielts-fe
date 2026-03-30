@@ -1,7 +1,6 @@
-import { React } from "react";
-import Header from "./components/layouts/Header";
+import React from "react";
+import Header from "./components/layouts/Header/index.jsx";
 import Footer from "./components/layouts/Footer";
-import HomePage from "./pages/Home";
 import { Outlet } from "react-router-dom";
 
 function App() {

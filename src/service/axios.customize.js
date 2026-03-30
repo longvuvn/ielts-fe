@@ -23,14 +23,14 @@ instance.interceptors.request.use(function (config) {
 
 instance.interceptors.response.use(function (response) {
     NProgress.done();
-    // Nếu API trả về cấu trúc có trường 'data' lồng nhau, ta có thể bóc tách ở đây
-    // Tuy nhiên để tương thích với code hiện tại của bạn, tôi sẽ trả về response.data
-    return response && response.data ? response.data : response;
+    return response;
 }, function (error) {
     NProgress.done();
-    // Thay vì return error.response.data (khiến nó thành resolve), ta phải dùng Promise.reject
-    if (error.response && error.response.data) {
-        return Promise.reject(error.response.data);
+    if (error.response && error.response.status === 401) {
+        // Xử lý khi token hết hạn hoặc không hợp lệ
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('user_info');
+        // Có thể redirect về /login ở đây nếu cần
     }
     return Promise.reject(error);
 });
