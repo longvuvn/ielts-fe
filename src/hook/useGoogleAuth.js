@@ -28,6 +28,7 @@ export const useGoogleAuth = () => {
 
                 // Lưu vào Context
                 loginSuccess(authResponseData.accessToken, {
+                    learnerId: authResponseData.learnerId,
                     role: authResponseData.role,
                     name: authResponseData.fullName,
                     email: authResponseData.email,

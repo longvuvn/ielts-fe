@@ -5,16 +5,9 @@ const getFlashcardsByLibraryIdAPI = (libraryId, page = 0, size = 10) => {
     return axios.get(API_URL);
 }
 
-const createFlashcardAPI = (title, description, libraryId) => {
-    const API_URL = "/api/v1/flashcard";
-    const data = {
-        title: title,
-        description: description,
-        libraryId: libraryId,
-        status: "ACTIVE"
-    }
-    return axios.post(API_URL, data);
-}
+const createFlashcardAPI = ({ title, description, libraryId }) => {
+    return axios.post("/api/v1/flashcard", { title, description, libraryId });
+};
 
 const deleteFlashcardAPI = (id) => {
     const API_URL = `/api/v1/flashcard/${id}`;
