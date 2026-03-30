@@ -5,7 +5,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth, signInWithGooglePopup } from "../config/firebase";
-import { jwtDecode } from "jwt-decode"; // IMPORT THƯ VIỆN GIẢI MÃ
+import {jwtDecode} from "jwt-decode";
 
 const AuthContext = createContext();
 
@@ -15,29 +15,34 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    // Hàm này chạy khi F5 trang, lấy data từ localStorage ra
     const token = localStorage.getItem("access_token");
     const userInfo = localStorage.getItem("user_info");
 
     if (token && userInfo) {
       setUser(JSON.parse(userInfo));
       setIsAuthenticated(true);
+    } else {
+      setUser(null);
+      setIsAuthenticated(false);
     }
     setIsLoading(false);
   }, []);
 
-  // THÊM HÀM NÀY: Xử lý khi BE trả về Token thành công
   const loginSuccess = (accessToken, userData) => {
     let decodedId = null;
     try {
-      // Giải mã JWT Token. Thường BE Spring Boot sẽ để ID ở trường 'sub' hoặc 'id'
       const decodedToken = jwtDecode(accessToken);
-      decodedId = decodedToken.sub || decodedToken.id || decodedToken.userId;
+      console.log("JWT Decoded:", decodedToken);
+      decodedId =
+        decodedToken.learnerId ||
+        decodedToken.userId ||
+        decodedToken.id ||
+        decodedToken.user_id ||
+        decodedToken.sub;
     } catch (error) {
       console.error("Lỗi giải mã token:", error);
     }
 
-    // Gộp ID vừa giải mã được vào chung với data BE trả về
     const finalUser = {
       ...userData,
       id: decodedId,
@@ -67,7 +72,7 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     isAuthenticated,
     loginWithGoogle,
-    loginSuccess, // Nhớ export hàm này ra
+    loginSuccess,
     logout,
   };
 

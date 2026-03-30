@@ -9,6 +9,8 @@ import LibraryPage from "./pages/Library/index.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import AdminLoginPage from "./pages/Admin/AdminLoginPage.jsx";
 import UserLoginPage from "./pages/Auth/LoginPage.jsx";
+import FlashcardDetailPage from "./pages/detail/FlashCardPageDetail.jsx";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -32,6 +34,10 @@ const router = createBrowserRouter([
   {
     path: "/login",
     element: <UserLoginPage />,
+  },
+  {
+    path: "/flashcards/:flashcardId",
+    element: <FlashcardDetailPage />,
   },
 ]);
 createRoot(document.getElementById("root")).render(
