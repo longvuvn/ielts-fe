@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { Trash2, BookOpen, ChevronRight, Edit2 } from "lucide-react";
+import { Trash2, BookOpen, Edit2, ArrowRight } from "lucide-react";
 
 const FlashcardItem = ({ card, onEdit, onDelete, onClickCard, onDragStart, onDragEnd }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
 
   const handleDragStart = (e) => {
     setIsDragging(true);
@@ -20,137 +19,56 @@ const FlashcardItem = ({ card, onEdit, onDelete, onClickCard, onDragStart, onDra
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      style={{
-        position: "relative",
-        borderRadius: "14px",
-        background: isHovered
-          ? "linear-gradient(135deg, #1e3a5f 0%, #162d4a 100%)"
-          : "linear-gradient(135deg, #152842 0%, #0f1e33 100%)",
-        border: isHovered
-          ? "1px solid rgba(100,160,255,0.35)"
-          : "1px solid rgba(100,160,255,0.12)",
-        boxShadow: isHovered
-          ? "0 8px 28px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)"
-          : "0 4px 16px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.05)",
-        padding: "14px",
-        cursor: isDragging ? "grabbing" : "pointer",
-        opacity: isDragging ? 0.4 : 1,
-        transition: "all 0.2s ease",
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        minHeight: "110px",
-      }}
+      className={`group/item relative bg-elevated/50 border border-white/5 rounded-[12px] p-4 cursor-pointer transition-all duration-200 hover:bg-elevated hover:border-accent/30 hover:shadow-xl hover:shadow-black/20 ${
+        isDragging ? "opacity-40 cursor-grabbing" : "opacity-100"
+      }`}
     >
-      {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <BookOpen size={12} style={{ color: "#60a5fa", flexShrink: 0 }} />
-          <span style={{
-            fontSize: "9px",
-            fontFamily: "'DM Mono', monospace",
-            color: "rgba(100,180,255,0.6)",
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-          }}>
+      {/* Label and Actions */}
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <BookOpen size={12} className="text-accent/60" />
+          <span className="text-[9px] font-bold text-text-muted uppercase tracking-[0.2em]">
             FLASHCARD
           </span>
         </div>
-        <div style={{ display: "flex", gap: "6px" }}>
+        
+        <div className="flex gap-1 opacity-0 group-hover/item:opacity-100 transition-opacity">
           <button
             onClick={(e) => { e.stopPropagation(); onEdit(card); }}
-            style={{
-              background: "rgba(255,255,255,0.08)",
-              border: "none",
-              borderRadius: "6px",
-              color: "rgba(180,210,255,0.8)",
-              cursor: "pointer",
-              padding: "3px 4px",
-              display: "flex",
-              alignItems: "center",
-              opacity: isHovered ? 1 : 0,
-              transition: "opacity 0.2s, background 0.2s",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.15)"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(255,255,255,0.08)"}
-            title="Chỉnh sửa flashcard"
+            className="p-1.5 rounded-md text-text-muted hover:text-accent hover:bg-accent/10 transition-colors"
           >
-            <Edit2 size={11} />
+            <Edit2 size={12} />
           </button>
           <button
             onClick={(e) => { e.stopPropagation(); onDelete(card.id); }}
-            style={{
-              background: "rgba(248,113,113,0.08)",
-              border: "none",
-              borderRadius: "6px",
-              color: "#f87171",
-              cursor: "pointer",
-              padding: "3px 4px",
-              display: "flex",
-              alignItems: "center",
-              opacity: isHovered ? 1 : 0,
-              transition: "opacity 0.2s, background 0.2s",
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.background = "rgba(248,113,113,0.22)"}
-            onMouseLeave={(e) => e.currentTarget.style.background = "rgba(248,113,113,0.08)"}
-            title="Xóa flashcard"
+            className="p-1.5 rounded-md text-text-muted hover:text-red-400 hover:bg-red-400/10 transition-colors"
           >
-            <Trash2 size={11} />
+            <Trash2 size={12} />
           </button>
         </div>
       </div>
 
-      {/* Title */}
-      <div
-        onClick={() => onClickCard(card.id)}
-        style={{ flex: 1 }}
-      >
-        <p style={{
-          color: "#e2f0ff",
-          fontFamily: "'Playfair Display', serif",
-          fontSize: "14px",
-          fontWeight: "600",
-          lineHeight: "1.4",
-          wordBreak: "break-word",
-          margin: "0 0 4px",
-        }}>
+      {/* Content */}
+      <div onClick={() => onClickCard(card.id)} className="flex-1 space-y-2">
+        <h4 className="text-[14px] font-bold text-text-primary leading-snug font-display tracking-tight group-hover/item:text-accent transition-colors">
           {card.title}
-        </p>
+        </h4>
         {card.description && (
-          <p style={{
-            color: "rgba(148,163,184,0.6)",
-            fontSize: "11px",
-            fontFamily: "'DM Sans', sans-serif",
-            margin: 0,
-            lineHeight: "1.4",
-            display: "-webkit-box",
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}>
+          <p className="text-[12px] text-text-secondary leading-relaxed line-clamp-1 font-medium italic opacity-70">
             {card.description}
           </p>
         )}
       </div>
 
-      {/* Footer: click to open */}
-      <div
+      {/* Link Footer */}
+      <div 
         onClick={() => onClickCard(card.id)}
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "flex-end",
-          gap: "4px",
-          color: isHovered ? "#60a5fa" : "rgba(100,180,255,0.3)",
-          transition: "color 0.2s",
-        }}
+        className="mt-4 flex items-center gap-1.5 text-accent group/link transition-colors"
       >
-        <span style={{ fontSize: "9px", fontFamily: "'DM Mono', monospace" }}>
+        <span className="text-[11px] font-bold uppercase tracking-widest">
           Học từ vựng
         </span>
-        <ChevronRight size={11} />
+        <ArrowRight size={12} className="transition-transform group-hover/link:translate-x-1" />
       </div>
     </div>
   );

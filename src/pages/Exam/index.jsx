@@ -33,12 +33,14 @@ const ExamListPage = () => {
     }
   };
 
-  const handleExamClick = (examId) => {
-    // Navigate to exam detail or practice page
-    navigate(`/exams/${examId}`);
+  const handleExamClick = (exam) => {
+    navigate(`/exams/${exam.id}`, {
+      state: { examTitle: exam.name || exam.title },
+    });
   };
 
   return (
+    // ... rest of the component
     <div className="min-h-screen bg-[#f8fafc] pb-20">
       {/* HEADER SECTION */}
       <div className="bg-white border-b border-gray-100 pt-12 pb-16">
@@ -64,11 +66,14 @@ const ExamListPage = () => {
           {/* SEARCH & FILTER BAR */}
           <div className="mt-10 flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <input 
-                type="text" 
-                placeholder="Tìm kiếm đề thi (e.g. Cambridge 18...)"
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 border border-gray-100 rounded-2xl focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+              <Search
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                size={20}
+              />
+              <input
+                type="text"
+                placeholder="Tìm kiếm đề thi..."
+                className="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all shadow-sm"
               />
             </div>
             <button className="flex items-center justify-center gap-2 bg-white border border-gray-200 px-6 py-4 rounded-2xl font-bold text-gray-700 hover:bg-gray-50 transition-all">
@@ -84,7 +89,10 @@ const ExamListPage = () => {
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl border border-gray-100">
+              <div
+                key={i}
+                className="bg-white p-6 rounded-2xl border border-gray-100"
+              >
                 <Skeleton active paragraph={{ rows: 4 }} />
               </div>
             ))}
@@ -99,7 +107,7 @@ const ExamListPage = () => {
                   description={exam.description}
                   duration="180 phút"
                   attempts={exam.attempts || "1.2k"}
-                  onClick={() => handleExamClick(exam.id)}
+                  onClick={() => handleExamClick(exam)}
                 />
               ))}
             </div>

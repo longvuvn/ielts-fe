@@ -7,6 +7,8 @@ import ErrorPage from "./pages/Error/ErrorPage.jsx";
 import HomePage from "./pages/Home/index.jsx";
 import LibraryPage from "./pages/Library/index.jsx";
 import ExamListPage from "./pages/Exam/index.jsx";
+import ExamDetailPage from "./pages/Exam/ExamDetailPage.jsx";
+import PracticePage from "./pages/Exam/PracticePage.jsx";
 import { AuthProvider } from "./contexts/AuthContext.jsx";
 import AdminLoginPage from "./pages/Admin/AdminLoginPage.jsx";
 import AdminDashboard from "./pages/Admin/index.jsx";
@@ -38,6 +40,10 @@ const router = createBrowserRouter([
           {
             path: "/exams",
             element: <ExamListPage />,
+          },
+          {
+            path: "/exams/:examId",
+            element: <ExamDetailPage />,
           },
         ],
       },
@@ -86,12 +92,13 @@ const router = createBrowserRouter([
         element: <FlashcardDetailPage />,
       },
       {
-        path: "/exams/:examId",
-        element: <ExamListPage />, // Placeholder cho trang chi tiết đề thi
+        path: "/exams/:examId/sections/:sectionId",
+        element: <PracticePage />,
       },
     ],
   },
 ]);
+
 createRoot(document.getElementById("root")).render(
   <AuthProvider>
     <RouterProvider router={router} />

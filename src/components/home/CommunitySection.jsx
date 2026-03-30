@@ -1,63 +1,76 @@
 import React from "react";
-import { MessageCircle, Users, Zap, Globe } from "lucide-react";
+import { MessageCircle, Users, Zap, Globe, CheckCircle2 } from "lucide-react";
 
 const features = [
   {
-    icon: <Users className="text-blue-400" />,
-    title: "Cộng đồng học thuật",
-    desc: "Kết nối với hàng ngàn học viên, chia sẻ kinh nghiệm và tài liệu học tập quý giá."
+    icon: <Users size={20} className="text-accent" />,
+    title: "Global Community",
+    desc: "Connect with thousands of learners worldwide to share experiences and insights."
   },
   {
-    icon: <MessageCircle className="text-indigo-400" />,
-    title: "Thảo luận bài giải",
-    desc: "Hệ thống comment dưới mỗi câu hỏi giúp giải đáp thắc mắc ngay lập tức."
+    icon: <MessageCircle size={20} className="text-blue-400" />,
+    title: "Active Discussions",
+    desc: "Get instant clarifications on complex questions through our nested comment system."
   },
   {
-    icon: <Zap className="text-amber-400" />,
-    title: "Chấm điểm tức thì",
-    desc: "Nhận kết quả và phân tích lỗi sai ngay sau khi nộp bài với công nghệ AI."
+    icon: <Zap size={20} className="text-warning" />,
+    title: "Instant Feedback",
+    desc: "Receive comprehensive AI-driven performance analysis seconds after submission."
   },
   {
-    icon: <Globe className="text-emerald-400" />,
-    title: "Tài liệu cập nhật",
-    desc: "Kho đề thi được cập nhật liên tục từ các nguồn uy tín như Cambridge, British Council."
+    icon: <Globe size={20} className="text-success" />,
+    title: "Curated Materials",
+    desc: "Always up-to-date with official sources from Cambridge and British Council."
   }
 ];
 
 const CommunitySection = () => {
   return (
-    <section className="py-24 bg-[#060d1a]">
+    <section className="py-32 bg-page">
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-24 items-center">
           <div className="order-2 lg:order-1">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {features.map((f, i) => (
-                <div key={i} className="bg-white/2 border border-white/5 p-6 rounded-3xl hover:border-blue-500/30 transition-colors">
-                  <div className="bg-white/5 w-12 h-12 rounded-2xl flex items-center justify-center mb-4">
+                <div key={i} className="premium-card p-8 hover:bg-white/5 group">
+                  <div className="bg-white/5 w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-all duration-300 shadow-inner">
                     {f.icon}
                   </div>
-                  <h3 className="text-white font-bold mb-2">{f.title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{f.desc}</p>
+                  <h3 className="text-text-primary font-bold mb-3 font-display text-lg">{f.title}</h3>
+                  <p className="text-text-secondary text-sm leading-relaxed">{f.desc}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="order-1 lg:order-2">
-            <h2 className="text-4xl lg:text-5xl font-bold font-serif text-white mb-6">
-              Không chỉ là luyện đề, đó là một hệ sinh thái
+            <h2 className="text-4xl lg:text-6xl font-bold font-display text-text-primary mb-8 leading-[1.1] tracking-tight">
+              A Complete <span className="text-accent italic">Ecosystem</span> for Success
             </h2>
-            <p className="text-gray-400 text-lg mb-8 leading-relaxed">
-              Chúng tôi xây dựng môi trường học tập tương tác cao, nơi bạn không bao giờ cảm thấy đơn độc trên con đường chinh phục IELTS.
+            <p className="text-text-secondary text-xl mb-10 leading-relaxed font-medium">
+              We go beyond static tests. Build your future within a highly 
+              interactive environment where support is always a click away.
             </p>
-            <ul className="space-y-4">
-              {["Hơn 50,000+ lượt thảo luận hàng tháng", "Đội ngũ mentor hỗ trợ 24/7", "Kho tài liệu 100GB+ miễn phí"].map((item, i) => (
-                <li key={i} className="flex items-center gap-3 text-gray-300">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  {item}
-                </li>
+            
+            <div className="space-y-6">
+              {[
+                "50,000+ monthly peer discussions",
+                "24/7 dedicated mentor support",
+                "100GB+ curated premium materials"
+              ].map((item, i) => (
+                <div key={i} className="flex items-center gap-4 text-text-primary font-bold">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center border border-accent/20">
+                     <CheckCircle2 size={14} className="text-accent" />
+                  </div>
+                  <span className="text-lg">{item}</span>
+                </div>
               ))}
-            </ul>
+            </div>
+            
+            <div className="mt-12 p-8 premium-card border-dashed border-accent/30 bg-accent/5">
+               <p className="text-text-primary font-bold mb-2">Ready to join the elite?</p>
+               <p className="text-text-secondary text-sm">Join our Discord and Telegram groups for daily challenges.</p>
+            </div>
           </div>
         </div>
       </div>

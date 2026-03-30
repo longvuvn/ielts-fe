@@ -1,14 +1,6 @@
 import React from "react";
-import { Plus } from "lucide-react";
+import { Plus, Library as LibraryIcon } from "lucide-react";
 import LibraryColumn from "./LibraryColumn";
-
-const primaryBtnStyle = {
-  background: "linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)",
-  border: "none", borderRadius: "12px", color: "white",
-  padding: "12px 28px", fontSize: "14px", fontFamily: "'DM Sans', sans-serif",
-  fontWeight: "600", cursor: "pointer", display: "inline-flex",
-  alignItems: "center", gap: "8px", boxShadow: "0 4px 16px rgba(59,130,246,0.35)",
-};
 
 const KanbanBoard = ({
   libraries = [],
@@ -27,18 +19,14 @@ const KanbanBoard = ({
   onDrop,
   onOpenCreateLibrary,
 }) => {
-// ... loading and empty state check ...
   if (isLoading) {
     return (
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", flex: 1, gap: "12px" }}>
-        {[0, 1, 2].map((i) => (
-          <div key={i} style={{
-            width: "260px", height: "340px",
-            background: "rgba(255,255,255,0.03)",
-            border: "1px solid rgba(255,255,255,0.06)",
-            borderRadius: "18px",
-            animation: `shimmer 1.5s ease-in-out ${i * 0.2}s infinite`,
-          }} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start">
+        {[0, 1, 2, 3].map((i) => (
+          <div 
+            key={i} 
+            className="premium-card min-h-[400px] bg-white/5 animate-pulse border-white/5"
+          />
         ))}
       </div>
     );
@@ -46,41 +34,28 @@ const KanbanBoard = ({
 
   if (libraries.length === 0) {
     return (
-      <div style={{
-        display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "center", flex: 1, textAlign: "center", padding: "40px",
-      }}>
-        <div style={{
-          width: "72px", height: "72px", borderRadius: "20px",
-          background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.2)",
-          display: "flex", alignItems: "center", justifyContent: "center", marginBottom: "24px",
-        }}>
-          <Plus size={32} style={{ color: "#3b82f6" }} />
+      <div className="flex flex-col items-center justify-center py-32 text-center animate-fade-slide-in">
+        <div className="w-20 h-20 rounded-[24px] bg-accent/10 border border-accent/20 flex items-center justify-center mb-8 shadow-2xl shadow-accent/5">
+          <LibraryIcon size={36} className="text-accent" />
         </div>
-        <p style={{ fontFamily: "'Playfair Display', serif", fontSize: "26px", color: "#475569", margin: "0 0 10px" }}>
-          Chưa có thư viện nào
+        <h2 className="text-3xl font-bold font-display text-text-primary mb-3">Chưa có thư viện nào</h2>
+        <p className="text-text-secondary max-w-sm mx-auto mb-10 font-medium">
+          Bắt đầu hành trình chinh phục từ vựng bằng cách tạo thư viện flashcard đầu tiên của bạn.
         </p>
-        <p style={{ fontFamily: "'DM Mono', monospace", fontSize: "12px", color: "#334155", margin: "0 0 28px" }}>
-          Tạo thư viện đầu tiên để bắt đầu học từ vựng
-        </p>
-        <button onClick={onOpenCreateLibrary} style={primaryBtnStyle}
-          onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 20px rgba(59,130,246,0.45)"; }}
-          onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 16px rgba(59,130,246,0.35)"; }}
+        <button 
+          onClick={onOpenCreateLibrary}
+          className="premium-button-primary px-8 h-12 flex items-center gap-2 shadow-lg shadow-accent/20"
         >
-          <Plus size={16} /> Tạo Thư Viện
+          <Plus size={18} /> Tạo Thư Viện Ngay
         </button>
       </div>
     );
   }
 
   return (
-    <div
+    <div 
       onDragEnd={onDragEnd}
-      style={{
-        display: "flex", gap: "20px", padding: "28px 32px",
-        overflowX: "auto", overflowY: "hidden",
-        minHeight: "calc(100vh - 90px)", alignItems: "flex-start",
-      }}
+      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start"
     >
       {libraries.map((lib) => (
         <LibraryColumn
@@ -104,31 +79,14 @@ const KanbanBoard = ({
       {/* ADD LIBRARY PLACEHOLDER */}
       <div
         onClick={onOpenCreateLibrary}
-        role="button"
-        tabIndex={0}
-        onKeyDown={(e) => e.key === "Enter" && onOpenCreateLibrary()}
-        style={{
-          minWidth: "220px", maxWidth: "220px",
-          border: "2px dashed rgba(255,255,255,0.08)",
-          borderRadius: "18px", padding: "32px 20px",
-          display: "flex", flexDirection: "column",
-          alignItems: "center", justifyContent: "center",
-          gap: "10px", cursor: "pointer", color: "#334155",
-          transition: "all 0.2s", flexShrink: 0, alignSelf: "flex-start", minHeight: "160px",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "rgba(59,130,246,0.3)";
-          e.currentTarget.style.color = "#60a5fa";
-          e.currentTarget.style.background = "rgba(59,130,246,0.04)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-          e.currentTarget.style.color = "#334155";
-          e.currentTarget.style.background = "transparent";
-        }}
+        className="premium-card min-h-[280px] bg-transparent border-2 border-dashed border-white/5 hover:border-accent/40 hover:bg-accent/5 flex flex-col items-center justify-center gap-4 cursor-pointer group transition-all duration-300 hover:scale-[1.01]"
       >
-        <Plus size={28} />
-        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: "12px" }}>Thêm thư viện</span>
+        <div className="w-14 h-14 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center text-text-muted group-hover:text-accent group-hover:border-accent/40 transition-colors">
+          <Plus size={32} />
+        </div>
+        <span className="text-text-muted font-bold uppercase tracking-widest text-[11px] group-hover:text-accent transition-colors">
+          Thêm thư viện
+        </span>
       </div>
     </div>
   );
