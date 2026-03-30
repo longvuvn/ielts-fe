@@ -21,7 +21,6 @@ const ExamListPage = () => {
     try {
       setIsLoading(true);
       const res = await getAllExamsAPI(page, pageSize);
-      console.log("Exam API Response:", res);
       
       if (res && res.status === 200) {
         // Handle case where response might be wrapped in { data: { content: [...] } }

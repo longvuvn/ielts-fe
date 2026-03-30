@@ -14,12 +14,15 @@ const ProtectedRoute = () => {
     );
   }
 
+  const isAdminRoute = location.pathname.startsWith('/admin');
+
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    // Nếu là route admin thì về trang login admin, ngược lại về login user
+    return <Navigate to={isAdminRoute ? "/admin-login" : "/login"} replace state={{ from: location }} />;
   }
 
   // Kiểm tra quyền Admin nếu truy cập vào đường dẫn /admin
-  if (location.pathname.startsWith('/admin') && user?.role !== 'ADMIN') {
+  if (isAdminRoute && user?.role !== 'ADMIN') {
     return <Navigate to="/" replace />;
   }
 

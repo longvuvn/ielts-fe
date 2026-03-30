@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { message, Skeleton, Input, Empty } from "antd";
-import { ArrowLeft, Clock, ChevronLeft, ChevronRight, CheckCircle, Info, Music } from "lucide-react";
+import { message, Skeleton, Input, Empty, Modal, Spin, Result, Button } from "antd";
+import { ArrowLeft, Clock, ChevronLeft, ChevronRight, CheckCircle, Info, Music, Sparkles } from "lucide-react";
 import { getSectionContentAPI } from "../../service/api/api.exam";
+import { gradeWritingAPI, createSubmissionAPI } from "../../service/api/api.submission";
+import { useAuth } from "../../hook/useAuth";
 
 // ─── Utility: strip all audio/media elements from raw HTML string ───────────
 const stripAudioFromHtml = (html = "") => {
@@ -153,12 +155,22 @@ const PracticePage = () => {
   const { examId, sectionId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const { audioUrl, sectionTitle } = location.state || {};
 
   const [passages, setPassages] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [answers, setAnswers] = useState({});
-  const [timeLeft] = useState(3600);
+  const [timeLeft, setTimeLeft] = useState(3600);
+
+  // AI Grading & Submission States
+  const [isGrading, setIsGrading] = useState(false);
+  const [aiResult, setAiResult] = useState(null);
+  const [showAiModal, setShowAiModal] = useState(false);
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionResult, setSubmissionResult] = useState(null);
+  const [showResultModal, setShowResultModal] = useState(false);
 
   const fetchSectionContent = useCallback(async () => {
     try {
@@ -178,10 +190,17 @@ const PracticePage = () => {
   }, [sectionId, fetchSectionContent]);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
-    const timer = setInterval(() => {}, 1000);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 0) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, []);
 
   const formatTime = (seconds) => {
     const m = Math.floor(seconds / 60);
@@ -192,14 +211,103 @@ const PracticePage = () => {
   const handleAnswerChange = (questionId, value) =>
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
 
-  const handleSubmit = () => {
-    if (window.confirm("Bạn có chắc chắn muốn nộp bài?")) {
-      message.success("Đã nộp bài thành công!");
-      navigate(`/exams/${examId}`);
+  const handleSubmit = async () => {
+    const learnerIdValue = user?.learnerId || user?.id;
+    
+    if (!learnerIdValue) {
+      message.error("Vui lòng đăng nhập để nộp bài!");
+      console.log("User context missing ID:", user);
+      return;
+    }
+
+    if (!window.confirm("Bạn có chắc chắn muốn nộp bài?")) return;
+
+    try {
+      setIsSubmitting(true);
+      
+      const allQuestions = passages.flatMap((p) => p.questions || []);
+      const submissionAnswerRequests = allQuestions.map(q => ({
+        questionId: q.id,
+        answerText: answers[q.id] || "",
+        answerQuestion: q.content 
+      }));
+
+      const payload = {
+        learnerId: learnerIdValue,
+        examId: examId,
+        submissionAnswerRequests
+      };
+
+      console.log("Submitting Data:", payload);
+
+      const res = await createSubmissionAPI(payload);
+      
+      if (res && (res.status === 200 || res.status === 201)) {
+        message.success("Đã nộp bài thành công!");
+        setSubmissionResult(res.data?.data || res.data);
+        setShowResultModal(true);
+      } else {
+        message.error("Có lỗi xảy ra khi nộp bài!");
+      }
+    } catch (err) {
+      console.error("Submission error:", err);
+      message.error("Lỗi khi kết nối với máy chủ!");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAIScore = async (questionId) => {
+    const answerText = answers[questionId];
+    if (!answerText || answerText.trim().length < 50) {
+      message.warning("Bài viết quá ngắn để chấm điểm! (Tối thiểu 50 ký tự)");
+      return;
+    }
+
+    try {
+      setIsGrading(true);
+      setShowAiModal(true);
+      setAiResult(null);
+      const res = await gradeWritingAPI(questionId, answerText);
+      
+      if (res && (res.status === 200 || res.status === 201)) {
+        // Handle both standard axios response and custom data structures
+        const data = res.data?.data || res.data;
+        setAiResult(data);
+      } else {
+        message.error("Không thể chấm điểm lúc này!");
+        setShowAiModal(false);
+      }
+    } catch (err) {
+      console.error("AI Grading error:", err);
+      message.error("Lỗi khi kết nối với AI!");
+      setShowAiModal(false);
+    } finally {
+      setIsGrading(false);
     }
   };
 
   const allQuestions = passages.flatMap((p) => p.questions || []);
+  
+  // Robust detection for writing tasks
+  const isWritingMode = (q) => {
+    const title = (sectionTitle || "").toLowerCase();
+    const type = (q.type || "").toLowerCase();
+    const content = (q.content || "").toLowerCase();
+    
+    const writingKeywords = ["writing", "task", "essay", "email", "letter", "report", "describe"];
+    const hasKeyword = writingKeywords.some(kw => 
+      title.includes(kw) || type.includes(kw) || content.includes(kw)
+    );
+
+    const promptMarkers = ["write a", "dear", "yours faithfully", "yours sincerely"];
+    const hasPromptMarker = promptMarkers.some(pm => content.includes(pm));
+
+    // If it's the only question in the section, it's almost certainly a writing/long-form task
+    const isOnlyQuestion = allQuestions.length === 1;
+
+    return hasKeyword || hasPromptMarker || isOnlyQuestion;
+  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] flex flex-col font-sans text-gray-900">
@@ -235,9 +343,10 @@ const PracticePage = () => {
           </div>
           <button
             onClick={handleSubmit}
-            className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95"
+            disabled={isSubmitting}
+            className="bg-blue-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95 disabled:bg-slate-500 disabled:shadow-none"
           >
-            <CheckCircle size={18} /> Nộp bài
+            {isSubmitting ? <Spin size="small" /> : <CheckCircle size={18} />} Nộp bài
           </button>
         </div>
       </div>
@@ -307,34 +416,59 @@ const PracticePage = () => {
             ) : allQuestions.length === 0 ? (
               <Empty description="Không có câu hỏi" />
             ) : (
-              allQuestions.map((q) => (
-                <div
-                  key={q.id}
-                  className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm hover:border-blue-400 transition-all group relative overflow-hidden mb-8"
-                >
-                  <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-500 transition-colors" />
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg font-black text-blue-600 font-mono">
-                        #{q.question_number}
-                      </span>
-                      <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
-                        {q.type}
-                      </span>
+              allQuestions.map((q) => {
+                const isWriting = isWritingMode(q);
+                
+                return (
+                  <div
+                    key={q.id}
+                    className="bg-white p-8 rounded-[32px] border border-slate-200 shadow-sm hover:border-blue-400 transition-all group relative overflow-hidden mb-8"
+                  >
+                    <div className="absolute top-0 left-0 w-1.5 h-full bg-slate-100 group-hover:bg-blue-500 transition-colors" />
+                    <div className="flex justify-between items-start mb-6">
+                      <div className="flex items-center gap-3">
+                        <span className="text-lg font-black text-blue-600 font-mono">
+                          #{q.question_number}
+                        </span>
+                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-500 text-[10px] font-bold uppercase tracking-wider">
+                          {q.type}
+                        </span>
+                      </div>
                     </div>
+                    <p
+                      className="text-slate-700 font-medium leading-relaxed mb-8 text-lg"
+                      dangerouslySetInnerHTML={{ __html: q.content }}
+                    />
+                    
+                    {isWriting ? (
+                      <div className="space-y-4">
+                        <Input.TextArea
+                          placeholder="Nhập bài viết của bạn tại đây (Task 1 hoặc Task 2)..."
+                          className="ielts-input writing-textarea"
+                          autoSize={{ minRows: 12, maxRows: 30 }}
+                          value={answers[q.id] || ""}
+                          onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                        />
+                        <div className="flex justify-end pt-3.5">
+                          <button
+                            onClick={() => handleAIScore(q.id, q.content)}
+                            className="bg-purple-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-purple-700 transition-all flex items-center gap-2 shadow-lg shadow-purple-600/20 active:scale-95 transition-all"
+                          >
+                            <Sparkles size={18} /> Chấm điểm AI
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <Input
+                        placeholder="Nhập câu trả lời..."
+                        className="ielts-input"
+                        value={answers[q.id] || ""}
+                        onChange={(e) => handleAnswerChange(q.id, e.target.value)}
+                      />
+                    )}
                   </div>
-                  <p
-                    className="text-slate-700 font-medium leading-relaxed mb-8 text-lg"
-                    dangerouslySetInnerHTML={{ __html: q.content }}
-                  />
-                  <Input
-                    placeholder="Nhập câu trả lời..."
-                    className="ielts-input"
-                    value={answers[q.id] || ""}
-                    onChange={(e) => handleAnswerChange(q.id, e.target.value)}
-                  />
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
@@ -365,6 +499,139 @@ const PracticePage = () => {
           </button>
         </div>
       </div>
+
+      {/* ── AI GRADING MODAL ── */}
+      <Modal
+        title={
+          <div className="flex items-center gap-2 text-purple-600">
+            <Sparkles size={20} />
+            <span className="font-bold text-lg">Phân tích chi tiết từ chuyên gia AI</span>
+          </div>
+        }
+        open={showAiModal}
+        onCancel={() => setShowAiModal(false)}
+        footer={[
+          <Button key="close" type="primary" onClick={() => setShowAiModal(false)} className="rounded-lg bg-purple-600">
+            Đã hiểu
+          </Button>
+        ]}
+        width={900}
+        centered
+        className="ai-modal"
+      >
+        {isGrading ? (
+          <div className="py-24 flex flex-col items-center justify-center gap-5">
+            <div className="relative">
+              <Spin size="large" />
+              <Sparkles className="absolute -top-2 -right-2 text-purple-400 animate-pulse" size={20} />
+            </div>
+            <div className="text-center">
+              <p className="text-slate-600 font-bold text-lg">AI đang chấm điểm bài viết...</p>
+              <p className="text-slate-400 text-sm mt-1">Quá trình này có thể mất vài giây để phân tích chuyên sâu</p>
+            </div>
+          </div>
+        ) : aiResult ? (
+          <div className="space-y-8 max-h-[75vh] overflow-y-auto pr-3 custom-scrollbar p-1">
+            {/* Band Score Header */}
+            <div className="bg-gradient-to-br from-purple-600 to-indigo-700 rounded-3xl p-8 text-white shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <h4 className="text-purple-100 font-bold uppercase tracking-widest text-xs mb-2">Estimated IELTS Band</h4>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-6xl font-black">{aiResult.band || "N/A"}</span>
+                  <span className="text-purple-200 font-medium">/ 9.0</span>
+                </div>
+              </div>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 max-w-md">
+                <p className="text-sm italic leading-relaxed">
+                  "{aiResult.overallFeedback?.substring(0, 150)}..."
+                </p>
+              </div>
+            </div>
+
+            {/* Criteria Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[
+                { label: "Task Achievement", value: aiResult.taskAchievement, icon: "🎯", color: "blue" },
+                { label: "Coherence & Cohesion", value: aiResult.coherenceCohesion, icon: "🔗", color: "green" },
+                { label: "Lexical Resource", value: aiResult.lexicalResource, icon: "📚", color: "orange" },
+                { label: "Grammatical Range", value: aiResult.grammaticalRange, icon: "⚙️", color: "red" }
+              ].map((item, idx) => (
+                <div key={idx} className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="text-2xl">{item.icon}</span>
+                    <h5 className="font-bold text-slate-800 tracking-tight">{item.label}</h5>
+                  </div>
+                  <p className="text-slate-600 text-sm leading-relaxed text-justify">
+                    {item.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            {/* Overall Feedback */}
+            <div className="bg-purple-50 border border-purple-100 rounded-2xl p-7">
+              <h4 className="text-purple-900 font-bold mb-4 flex items-center gap-2 text-lg">
+                <Info size={22} className="text-purple-600" /> Nhận xét tổng quát
+              </h4>
+              <p className="text-slate-700 leading-relaxed whitespace-pre-line">
+                {aiResult.overallFeedback}
+              </p>
+            </div>
+
+            {/* Corrected Essay */}
+            {aiResult.correctedEssay && (
+              <div className="bg-slate-900 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="bg-slate-800 px-6 py-4 flex justify-between items-center border-b border-slate-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle size={18} className="text-emerald-400" />
+                    <span className="text-slate-200 font-bold text-sm uppercase tracking-wider">Bài viết đề xuất từ AI</span>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(aiResult.correctedEssay);
+                      message.success("Đã sao chép bài mẫu!");
+                    }}
+                    className="text-[10px] bg-slate-700 hover:bg-slate-600 text-slate-300 px-3 py-1 rounded-md transition-colors font-bold uppercase"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div className="p-8">
+                  <div className="text-slate-300 font-serif leading-[1.8] text-lg whitespace-pre-line">
+                    {aiResult.correctedEssay}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Empty description="Không có kết quả phân tích" />
+        )}
+      </Modal>
+
+      {/* ── SUBMISSION RESULT MODAL ── */}
+      <Modal
+        title="Kết quả bài thi"
+        open={showResultModal}
+        onCancel={() => setShowResultModal(false)}
+        footer={[
+          <Button key="back" onClick={() => navigate(`/exams/${examId}`)}>
+            Quay lại trang đề thi
+          </Button>
+        ]}
+        width={600}
+        centered
+      >
+        <Result
+          status="success"
+          title="Nộp bài thành công!"
+          subTitle={
+            submissionResult?.score !== undefined 
+              ? `Điểm của bạn: ${submissionResult.score}/${allQuestions.length}`
+              : "Bài thi của bạn đang được hệ thống xử lý chấm điểm."
+          }
+        />
+      </Modal>
 
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -424,6 +691,22 @@ const PracticePage = () => {
         .ielts-input:focus {
           border-color: #3b82f6 !important;
           box-shadow: 0 0 0 3px rgba(59,130,246,0.1) !important;
+        }
+
+        /* Writing textarea specific */
+        .writing-textarea {
+          padding: 1.25rem !important;
+          line-height: 1.6 !important;
+          background: #fff !important;
+        }
+
+        .ai-modal .ant-modal-content {
+          border-radius: 24px;
+          overflow: hidden;
+        }
+        .ai-modal .ant-modal-header {
+          border-bottom: 1px solid #f1f5f9;
+          padding: 20px 24px;
         }
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
