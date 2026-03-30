@@ -21,88 +21,59 @@ const LibraryColumn = ({
     <div
       onDragOver={(e) => onDragOver(e, library.id)}
       onDrop={(e) => onDrop(e, library.id)}
-      className="min-w-[260px] max-w-[260px] rounded-[18px] p-5 flex flex-col gap-3.5 transition-all duration-200 backdrop-blur-md shrink-0 self-start"
-      style={{
-        background: isDragOver ? "rgba(99,179,255,0.08)" : "rgba(255,255,255,0.03)",
-        border: isDragOver ? "2px dashed rgba(99,179,255,0.6)" : "1px solid rgba(255,255,255,0.08)",
-      }}
+      className={`premium-card p-6 gap-6 min-h-[280px] group/col transition-all duration-300 ${
+        isDragOver ? "border-accent/60 bg-accent/5 ring-4 ring-accent/10" : ""
+      }`}
     >
       {/* COLUMN HEADER */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 overflow-hidden flex-1">
-          <BookOpen size={15} className="text-blue-400 shrink-0" />
-          <span className="font-mono font-semibold text-sm text-[#e2e8f0] truncate">
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2.5 overflow-hidden flex-1">
+          <div className="p-2 rounded-lg bg-accent/10 text-accent">
+            <BookOpen size={16} />
+          </div>
+          <span className="font-bold text-sm text-text-primary truncate font-display tracking-tight">
             {library.name}
+          </span>
+          <span className="bg-accent/10 text-accent border border-accent/20 rounded-full px-2.5 py-0.5 text-[10px] font-bold">
+            {cards.length}
           </span>
         </div>
 
-        <div className="flex gap-1.5 items-center shrink-0 ml-2">
-          <span className="bg-blue-400/15 text-blue-300 rounded-full px-2 py-0.5 text-[11px] font-mono">
-            {cards.length}
-          </span>
-
+        {/* Action buttons - Hover Only */}
+        <div className="flex gap-1 items-center opacity-0 group-hover/col:opacity-100 transition-opacity duration-200">
           <button
             onClick={() => onEditLibrary(library)}
             title="Sửa thư viện"
-            className="bg-white/5 border-none rounded-lg text-gray-400 cursor-pointer p-1.5 flex items-center hover:bg-white/10 hover:text-white transition-all"
+            className="p-1.5 rounded-lg text-text-muted hover:text-white hover:bg-white/5 transition-all"
           >
-            <Settings2 size={13} />
+            <Settings2 size={14} />
           </button>
-
-          <button
-            onClick={() => onAddCard(library.id)}
-            title="Thêm flashcard mới"
-            className="bg-blue-400/15 border-none rounded-lg text-blue-400 cursor-pointer p-1.5 flex items-center hover:bg-blue-400/30 transition-all"
-          >
-            <Plus size={13} />
-          </button>
-
           <button
             onClick={() => onDeleteLibrary(library.id)}
             title="Xóa thư viện"
-            className="bg-red-400/10 border-none rounded-lg text-red-400 cursor-pointer p-1.5 flex items-center hover:bg-red-400/25 transition-all"
+            className="p-1.5 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-400/10 transition-all"
           >
-            <Trash2 size={13} />
+            <Trash2 size={14} />
           </button>
         </div>
       </div>
 
       {/* DROP ZONE HINT */}
       {isDragOver && (
-        <div style={{
-          border: "2px dashed rgba(99,179,255,0.4)",
-          borderRadius: "12px",
-          padding: "10px",
-          textAlign: "center",
-          color: "rgba(99,179,255,0.7)",
-          fontSize: "11px",
-          fontFamily: "'DM Mono', monospace",
-          animation: "pulse 1s infinite",
-        }}>
-          Thả thẻ vào đây
+        <div className="border-2 border-dashed border-accent/40 rounded-xl p-4 text-center animate-pulse">
+          <p className="text-accent text-[10px] font-bold uppercase tracking-widest">Thả thẻ vào đây</p>
         </div>
       )}
 
       {/* CARDS LIST */}
-      <div style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "10px",
-        maxHeight: "calc(100vh - 320px)",
-        overflowY: "auto",
-        paddingRight: "2px",
-      }}>
+      <div className="flex flex-col gap-2 overflow-y-auto max-h-[500px] pr-1 custom-scrollbar">
         {cards.length === 0 ? (
-          <div style={{
-            textAlign: "center",
-            color: "rgba(148,163,184,0.35)",
-            fontSize: "12px",
-            fontFamily: "'DM Mono', monospace",
-            padding: "28px 0",
-            lineHeight: "1.8",
-          }}>
-            Chưa có flashcard nào<br />
-            <span style={{ fontSize: "10px", opacity: 0.6 }}>Nhấn + để thêm</span>
+          <div className="flex flex-col items-center justify-center py-10 text-center opacity-40">
+            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center mb-3">
+               <BookOpen size={20} className="text-accent" />
+            </div>
+            <p className="text-text-secondary text-[13px] font-bold">Chưa có flashcard</p>
+            <p className="text-text-muted text-[11px] mt-1 uppercase tracking-tight">Nhấn + để thêm</p>
           </div>
         ) : (
           cards.map((card) => (
@@ -122,30 +93,9 @@ const LibraryColumn = ({
       {/* ADD CARD SHORTCUT */}
       <button
         onClick={() => onAddCard(library.id)}
-        style={{
-          background: "none",
-          border: "1px dashed rgba(255,255,255,0.1)",
-          borderRadius: "10px",
-          color: "rgba(148,163,184,0.4)",
-          fontSize: "12px",
-          fontFamily: "'DM Mono', monospace",
-          padding: "8px",
-          cursor: "pointer",
-          transition: "all 0.2s",
-          textAlign: "center",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.borderColor = "rgba(99,179,255,0.3)";
-          e.currentTarget.style.color = "#60a5fa";
-          e.currentTarget.style.background = "rgba(99,179,255,0.05)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
-          e.currentTarget.style.color = "rgba(148,163,184,0.4)";
-          e.currentTarget.style.background = "none";
-        }}
+        className="w-full flex items-center justify-center py-2.5 bg-transparent border border-dashed border-white/5 rounded-xl text-text-muted hover:border-accent hover:text-accent hover:bg-accent/5 transition-all duration-300 font-bold text-[11px] uppercase tracking-widest"
       >
-        + Thêm flashcard
+        <Plus size={14} className="mr-2" /> Thêm flashcard
       </button>
     </div>
   );

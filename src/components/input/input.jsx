@@ -9,6 +9,7 @@ const Input = ({
   onChange,
   error,
   icon: Icon,
+  className = "",
   ...props
 }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -16,17 +17,17 @@ const Input = ({
   const inputType = type === "password" && showPassword ? "text" : type;
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${className}`}>
       {label && (
-        <label className="block text-sm font-semibold text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-text-secondary mb-2 ml-1">
           {label}
         </label>
       )}
 
-      <div className="relative">
+      <div className="relative group">
         {Icon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
-            <Icon size={20} />
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted transition-colors group-focus-within:text-accent">
+            <Icon size={18} />
           </div>
         )}
 
@@ -35,10 +36,10 @@ const Input = ({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className={`w-full px-4 ${Icon ? "pl-12" : ""} py-3 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
+          className={`w-full ${Icon ? "pl-11" : "px-4"} premium-input ${
             error
-              ? "border-red-500 focus:border-red-600 bg-red-50"
-              : "border-gray-200 focus:border-blue-500 bg-white"
+              ? "border-red-500/50 focus:border-red-500 focus:ring-red-500/20 bg-red-500/5"
+              : ""
           }`}
           {...props}
         />
@@ -47,16 +48,16 @@ const Input = ({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-secondary transition-colors"
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         )}
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
-          <AlertCircle size={16} />
+        <div className="flex items-center gap-2 mt-2 text-red-400 text-xs ml-1">
+          <AlertCircle size={14} />
           <span>{error}</span>
         </div>
       )}

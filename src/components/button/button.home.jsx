@@ -5,28 +5,33 @@ const Button = ({
   size = "md",
   children,
   icon: Icon,
+  className = "",
   ...props
 }) => {
-  const baseStyles = "font-semibold rounded-lg transition-all duration-200";
+  const baseStyles = "font-medium flex items-center justify-center gap-2 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none";
 
   const variants = {
-    primary: "bg-black text-white hover:bg-gray-800",
-    secondary: "bg-white text-black border border-gray-300 hover:bg-gray-100",
-    outline: "border-2 border-blue-500 text-blue-500 hover:bg-blue-50",
+    primary: "premium-button-primary",
+    secondary: "premium-button-secondary",
+    ghost: "bg-transparent text-text-secondary hover:text-text-primary hover:bg-white/5 rounded-xl",
+    outline: "bg-transparent border border-border-default text-text-secondary hover:border-accent hover:text-accent rounded-xl",
   };
 
   const sizes = {
     sm: "px-4 py-2 text-sm",
-    md: "px-6 py-3 text-base",
-    lg: "px-8 py-4 text-lg",
+    md: "px-6 py-2.5 text-base",
+    lg: "px-8 py-3.5 text-lg",
   };
+
+  const variantClass = variants[variant] || variants.primary;
+  const sizeClass = sizes[size] || sizes.md;
 
   return (
     <button
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} flex items-center gap-2`}
+      className={`${baseStyles} ${variantClass} ${sizeClass} ${className}`}
       {...props}
     >
-      {Icon && <Icon size={20} />}
+      {Icon && <Icon size={size === "sm" ? 16 : 20} />}
       {children}
     </button>
   );

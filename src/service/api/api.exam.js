@@ -7,7 +7,7 @@ import axios from "../axios.customize";
 
 // Lấy danh sách exam phân trang
 export const getAllExamsAPI = (page = 0, size = 10) => {
-    return axios.get(`/api/v1/exams/?page=${page}&size=${size}`);
+    return axios.get(`/api/v1/exams?page=${page}&size=${size}`);
 };
 
 // Lấy danh sách section theo examId

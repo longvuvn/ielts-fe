@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Library } from "lucide-react";
 import { message } from "antd";
 import { useAuth } from "../../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 import KanbanBoard from "../../components/kanban/KanbanBoard";
+import Button from "../../components/button/button.home";
 
 import {
   getAllLibrariesByLearnerIdAPI,
@@ -44,56 +45,59 @@ const LibraryModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000]" onClick={onClose}>
-      <div className="bg-[#0f1a2e] border border-white/10 rounded-2xl p-7 w-[420px] max-w-[90vw] shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-5">
-          <h3 className="m-0 text-[#e2e8f0] font-serif text-xl">
-            {initialData ? "Chỉnh sửa Thư Viện" : "Tạo Thư Viện Mới"}
-          </h3>
-          <button onClick={onClose} className="bg-none border-none text-[#94a3b8] cursor-pointer hover:text-white transition-colors">
+    <div className="fixed inset-0 bg-page/80 backdrop-blur-md flex items-center justify-center z-[1000] p-6" onClick={onClose}>
+      <div className="bg-card border border-border-default rounded-[24px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-text-primary font-display text-2xl font-bold tracking-tight">
+              {initialData ? "Chỉnh sửa Thư Viện" : "Tạo Thư Viện Mới"}
+            </h3>
+            <p className="text-text-secondary text-xs mt-1 font-medium">Tổ chức các bộ thẻ từ vựng của bạn</p>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-all">
             <X size={20} />
           </button>
         </div>
 
-        <label className="block text-[#94a3b8] text-xs font-mono mb-1.5 tracking-wider uppercase">Tên thư viện *</label>
-        <input
-          autoFocus
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
-          placeholder="e.g. IELTS Vocabulary"
-          className="w-full bg-white/5 border border-white/10 rounded-lg text-[#e2e8f0] px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors mb-4"
-        />
+        <div className="space-y-6">
+          <div>
+            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Tên thư viện *</label>
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+              placeholder="e.g. IELTS Academic Vocabulary"
+              className="premium-input w-full"
+            />
+          </div>
 
-        <label className="block text-[#94a3b8] text-xs font-mono mb-1.5 tracking-wider uppercase">Mô tả</label>
-        <input
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Mô tả ngắn về thư viện này..."
-          className="w-full bg-white/5 border border-white/10 rounded-lg text-[#e2e8f0] px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors mb-4"
-        />
+          <div>
+            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Mô tả</label>
+            <input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Mô tả ngắn về thư viện này..."
+              className="premium-input w-full"
+            />
+          </div>
 
-        <div className="flex items-center gap-2.5 mb-5">
-          <input
-            type="checkbox"
-            id="is-public"
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
-            className="w-auto cursor-pointer"
-          />
-          <label
-            htmlFor="is-public"
-            className="text-[#94a3b8] text-xs cursor-pointer select-none"
-          >
-            Công khai thư viện
-          </label>
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-border-default cursor-pointer group" onClick={() => setIsPublic(!isPublic)}>
+            <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${isPublic ? 'bg-accent border-accent' : 'border-border-default group-hover:border-text-muted'}`}>
+              {isPublic && <div className="w-2 h-2 bg-white rounded-sm" />}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-text-primary text-sm font-bold">Công khai thư viện</span>
+              <span className="text-text-muted text-[10px] font-medium uppercase tracking-tight">Mọi người có thể xem thư viện này</span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex gap-2.5 justify-end">
-          <button onClick={onClose} className="bg-white/5 border border-white/10 rounded-lg text-[#94a3b8] px-5 py-2 text-sm hover:bg-white/10 transition-colors">Hủy</button>
-          <button onClick={handleSubmit} className="bg-gradient-to-br from-blue-500 to-blue-700 border-none rounded-lg text-white px-5 py-2 text-sm font-semibold hover:from-blue-600 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/20">
-            {initialData ? "Cập nhật" : "Tạo"}
-          </button>
+        <div className="flex gap-3 justify-end mt-10">
+          <Button variant="ghost" onClick={onClose}>Hủy</Button>
+          <Button variant="primary" onClick={handleSubmit} className="px-8 shadow-lg shadow-accent/20">
+            {initialData ? "Cập nhật" : "Tạo Thư Viện"}
+          </Button>
         </div>
       </div>
     </div>
@@ -122,41 +126,50 @@ const FlashcardModal = ({ isOpen, onClose, onSubmit, targetLibraryId, initialDat
 
   if (!isOpen) return null;
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[1000]" onClick={onClose}>
-      <div className="bg-[#0f1a2e] border border-white/10 rounded-2xl p-7 w-[420px] max-w-[90vw] shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-5">
-          <h3 className="m-0 text-[#e2e8f0] font-serif text-xl">
-            {initialData ? "Chỉnh sửa Flashcard" : "Tạo Flashcard Mới"}
-          </h3>
-          <button onClick={onClose} className="bg-none border-none text-[#94a3b8] cursor-pointer hover:text-white transition-colors">
+    <div className="fixed inset-0 bg-page/80 backdrop-blur-md flex items-center justify-center z-[1000] p-6" onClick={onClose}>
+      <div className="bg-card border border-border-default rounded-[24px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-text-primary font-display text-2xl font-bold tracking-tight">
+              {initialData ? "Chỉnh sửa Flashcard" : "Tạo Flashcard Mới"}
+            </h3>
+            <p className="text-text-secondary text-xs mt-1 font-medium">Thêm từ vựng mới vào bộ sưu tập</p>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-xl text-text-muted hover:text-text-primary hover:bg-white/5 transition-all">
             <X size={20} />
           </button>
         </div>
 
-        <label className="block text-[#94a3b8] text-xs font-mono mb-1.5 tracking-wider uppercase">Tên flashcard *</label>
-        <input
-          autoFocus
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
-          placeholder="e.g. Vocabulary for children"
-          className="w-full bg-white/5 border border-white/10 rounded-lg text-[#e2e8f0] px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors mb-4"
-        />
+        <div className="space-y-6">
+          <div>
+            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Tên flashcard *</label>
+            <input
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+              placeholder="e.g. Abandon (v)"
+              className="premium-input w-full"
+            />
+          </div>
 
-        <label className="block text-[#94a3b8] text-xs font-mono mb-1.5 tracking-wider uppercase">Mô tả</label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Mô tả nội dung flashcard này..."
-          rows={3}
-          className="w-full bg-white/5 border border-white/10 rounded-lg text-[#e2e8f0] px-3.5 py-2.5 text-sm outline-none focus:border-blue-500 transition-colors mb-4 resize-vertical"
-        />
+          <div>
+            <label className="block text-text-muted text-[10px] font-bold uppercase tracking-widest mb-2 ml-1">Mô tả (Định nghĩa/Ví dụ)</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Nhập nghĩa của từ hoặc ví dụ..."
+              rows={4}
+              className="premium-input w-full resize-none"
+            />
+          </div>
+        </div>
 
-        <div className="flex gap-2.5 justify-end">
-          <button onClick={onClose} className="bg-white/5 border border-white/10 rounded-lg text-[#94a3b8] px-5 py-2 text-sm hover:bg-white/10 transition-colors">Hủy</button>
-          <button onClick={handleSubmit} className="bg-gradient-to-br from-blue-500 to-blue-700 border-none rounded-lg text-white px-5 py-2 text-sm font-semibold hover:from-blue-600 hover:to-blue-800 transition-all shadow-lg shadow-blue-500/20">
-            {initialData ? "Cập nhật" : "Tạo"}
-          </button>
+        <div className="flex gap-3 justify-end mt-10">
+          <Button variant="ghost" onClick={onClose}>Hủy</Button>
+          <Button variant="primary" onClick={handleSubmit} className="px-8 shadow-lg shadow-accent/20">
+            {initialData ? "Cập nhật" : "Tạo Flashcard"}
+          </Button>
         </div>
       </div>
     </div>
@@ -170,22 +183,18 @@ const LibraryPage = () => {
 
   const learnerId = user?.id ?? JSON.parse(localStorage.getItem("user_info") || "{}")?.id;
 
-  // ── DATA STATE ──
   const [libraries, setLibraries] = useState([]);
   const [cardsByLibrary, setCardsByLibrary] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // ── MODAL STATE ──
   const [showLibraryModal, setShowLibraryModal] = useState(false);
   const [showCardModal, setShowCardModal] = useState(false);
   const [targetLibraryId, setTargetLibraryId] = useState(null);
   const [editingItem, setEditingItem] = useState(null);
 
-  // ── DRAG STATE ──
   const dragCard = useRef(null);
   const [dragOverLibraryId, setDragOverLibraryId] = useState(null);
 
-  // ── FETCH ──
   useEffect(() => {
     if (learnerId) fetchLibraries();
   }, [learnerId]);
@@ -231,7 +240,6 @@ const LibraryPage = () => {
     return [];
   };
 
-  // ── ACTION HANDLERS ──
   const handleOpenEditLibrary = (library) => {
     setEditingItem({ ...library, type: 'LIBRARY' });
     setShowLibraryModal(true);
@@ -249,7 +257,6 @@ const LibraryPage = () => {
     setEditingItem(null);
   };
 
-  // ── LIBRARY ACTIONS ──
   const handleCreateLibrary = async ({ name, description, is_Public }) => {
     if (!learnerId) { message.error("Chưa đăng nhập!"); return; }
     try {
@@ -291,33 +298,28 @@ const LibraryPage = () => {
     }
   };
 
-  // ── FLASHCARD ACTIONS ──
   const handleOpenAddCard = (libraryId) => {
     setTargetLibraryId(libraryId);
     setEditingItem(null);
     setShowCardModal(true);
   };
-const handleCreateFlashcard = async ({ title, description, libraryId }) => {
-  try {
-    if (editingItem && editingItem.type === 'FLASHCARD') {
-      const res = await updateFlashcardAPI(editingItem.id, {
-        title,
-        description,
-        libraryId,
-        status: "ACTIVE"
-      });
-      if (res && res.status === 200) {
-        message.success("Cập nhật thành công!");
-        handleCloseModals();
-        setCardsByLibrary(prev => {
-          const next = { ...prev };
-          next[libraryId] = next[libraryId].map(c => c.id === editingItem.id ? { ...c, title, description } : c);
-          return next;
-        });
-      }
-    } else {
-// ... create logic
 
+  const handleCreateFlashcard = async ({ title, description, libraryId }) => {
+    try {
+      if (editingItem && editingItem.type === 'FLASHCARD') {
+        const res = await updateFlashcardAPI(editingItem.id, {
+          title, description, libraryId, status: "ACTIVE"
+        });
+        if (res && res.status === 200) {
+          message.success("Cập nhật thành công!");
+          handleCloseModals();
+          setCardsByLibrary(prev => {
+            const next = { ...prev };
+            next[libraryId] = next[libraryId].map(c => c.id === editingItem.id ? { ...c, title, description } : c);
+            return next;
+          });
+        }
+      } else {
         const res = await createFlashcardAPI({ title, description, libraryId });
         if (res && (res.status === 201 || res.status === 200)) {
           const newCard = {
@@ -361,7 +363,6 @@ const handleCreateFlashcard = async ({ title, description, libraryId }) => {
 
   const handleClickCard = (cardId) => { navigate(`/flashcards/${cardId}`); };
 
-  // ── DRAG & DROP ──
   const handleDragStart = (e, card) => {
     let fromLibraryId = null;
     for (const libId in cardsByLibrary) {
@@ -415,34 +416,49 @@ const handleCreateFlashcard = async ({ title, description, libraryId }) => {
   const handleDragEnd = () => { setDragOverLibraryId(null); dragCard.current = null; };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#060d1a] via-[#0a1628] to-[#060e1c] font-sans flex flex-col animate-fade-slide-in">
-      <div className="flex items-center justify-between px-8 py-[22px] border-b border-white/5 bg-white/2 backdrop-blur-md sticky top-0 z-[100]">
-        <div>
-          <h1 className="m-0 font-serif text-[26px] font-bold text-[#e2e8f0] tracking-tight">Flashcard Library</h1>
-          <p className="m-0 mt-0.5 text-[#64748b] text-[12px] font-mono">{libraries.length} thư viện · nhấn vào flashcard để học từ vựng</p>
+    <div className="min-h-screen bg-page text-text-primary animate-fade-slide-in flex flex-col">
+      {/* PAGE HEADER */}
+      <div className="w-full border-b border-border-default bg-page/40 backdrop-blur-xl z-[100]">
+        <div className="max-w-7xl mx-auto px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="p-3 bg-accent/10 text-accent rounded-2xl shadow-lg shadow-accent/5">
+              <Library size={28} />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold font-display tracking-tight text-text-primary">Flashcard Library</h1>
+              <p className="text-text-secondary text-sm mt-1 font-medium">{libraries.length} active libraries · Click to start learning</p>
+            </div>
+          </div>
+          <Button 
+            variant="primary" 
+            onClick={() => { setEditingItem(null); setShowLibraryModal(true); }}
+            className="shadow-[0_0_25px_rgba(59,125,255,0.25)] h-12 px-8"
+          >
+            <Plus size={18} /> Thư Viện Mới
+          </Button>
         </div>
-        <button onClick={() => { setEditingItem(null); setShowLibraryModal(true); }} className="bg-gradient-to-br from-[#3b82f6] to-[#1e40af] border-none rounded-xl text-white px-5 py-2.5 text-sm font-semibold cursor-pointer flex items-center gap-2 shadow-lg shadow-blue-500/35 hover:-translate-y-0.5 hover:shadow-blue-500/45 transition-all">
-          <Plus size={16} /> Thư Viện Mới
-        </button>
       </div>
 
-      <KanbanBoard
-        libraries={libraries}
-        cardsByLibrary={cardsByLibrary}
-        isLoading={isLoading}
-        dragOverLibraryId={dragOverLibraryId}
-        onEditLibrary={handleOpenEditLibrary}
-        onDeleteLibrary={handleDeleteLibrary}
-        onAddCard={handleOpenAddCard}
-        onEditCard={handleOpenEditCard}
-        onDeleteCard={handleDeleteCard}
-        onClickCard={handleClickCard}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-        onOpenCreateLibrary={() => { setEditingItem(null); setShowLibraryModal(true); }}
-      />
+      {/* CONTENT GRID CONTAINER */}
+      <div className="max-w-7xl mx-auto w-full px-8 py-10 flex-1">
+        <KanbanBoard
+          libraries={libraries}
+          cardsByLibrary={cardsByLibrary}
+          isLoading={isLoading}
+          dragOverLibraryId={dragOverLibraryId}
+          onEditLibrary={handleOpenEditLibrary}
+          onDeleteLibrary={handleDeleteLibrary}
+          onAddCard={handleOpenAddCard}
+          onEditCard={handleOpenEditCard}
+          onDeleteCard={handleDeleteCard}
+          onClickCard={handleClickCard}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          onOpenCreateLibrary={() => { setEditingItem(null); setShowLibraryModal(true); }}
+        />
+      </div>
 
       <LibraryModal 
         isOpen={showLibraryModal} 

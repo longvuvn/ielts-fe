@@ -1,15 +1,16 @@
 const Badge = ({ children, color = "blue" }) => {
   const colors = {
-    blue: "bg-blue-100 text-blue-700",
-    yellow: "bg-yellow-100 text-yellow-700",
-    pink: "bg-pink-100 text-pink-700",
-    green: "bg-green-100 text-green-700",
+    blue: "bg-accent/10 text-accent border border-accent/20",
+    yellow: "bg-warning/10 text-warning border border-warning/20",
+    green: "bg-success/10 text-success border border-success/20",
+    success: "bg-success/10 text-success border border-success/20",
+    warning: "bg-warning/10 text-warning border border-warning/20",
   };
 
+  const selectedColor = colors[color] || colors.blue;
+
   return (
-    <span
-      className={`${colors[color]} text-xs font-semibold px-3 py-1 rounded-full`}
-    >
+    <span className={`${selectedColor} premium-badge`}>
       {children}
     </span>
   );
