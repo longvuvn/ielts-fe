@@ -1,12 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import Button from "../../components/button/button.home";
 
-const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
+const LibraryModal = ({ isOpen, onClose, onSubmit, initialData }) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(true);
 
+  // Sync state when modal opens or initialData changes
+  // If initialData is null, it's "Create" mode (reset form)
+  // If initialData exists, it's "Edit" mode (load data)
+  useEffect(() => {
+    if (isOpen) {
+      setName(initialData?.name || "");
+      setDescription(initialData?.description || "");
+      
+      const val = initialData?.is_Public;
+      // Handle various boolean formats from API
+      setIsPublic(val === true || val === "True" || val === "true" || val === undefined);
+    }
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
@@ -24,12 +37,15 @@ const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
       e.stopPropagation();
     }
     if (!name.trim()) return;
+    
     onSubmit({ 
       name: name.trim(), 
       description: description.trim(), 
       is_Public: isPublic 
     });
   };
+
+  const isEditMode = !!initialData;
 
   return (
     <div 
@@ -42,8 +58,12 @@ const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
       >
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h3 className="text-slate-900 font-display text-2xl font-bold tracking-tight">Tạo Thư Viện Mới</h3>
-            <p className="text-slate-500 text-xs mt-1 font-medium">Bắt đầu xây dựng kho lưu trữ từ vựng của bạn</p>
+            <h3 className="text-slate-900 font-display text-2xl font-bold tracking-tight">
+              {isEditMode ? "Chỉnh sửa Thư Viện" : "Tạo Thư Viện Mới"}
+            </h3>
+            <p className="text-slate-500 text-xs mt-1 font-medium">
+              {isEditMode ? "Cập nhật thông tin kho từ vựng của bạn" : "Bắt đầu xây dựng kho lưu trữ từ vựng của bạn"}
+            </p>
           </div>
           <button 
             type="button"
@@ -71,7 +91,7 @@ const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
             <input
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Nhập mô tả ngắn cho thư viện này..."
+              placeholder={isEditMode ? "Cập nhật mô tả..." : "Nhập mô tả ngắn cho thư viện này..."}
               className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl px-5 py-4 text-slate-900 font-bold placeholder-slate-300 outline-none transition-all focus:border-blue-500/20 focus:bg-white focus:ring-4 focus:ring-blue-500/5"
             />
           </div>
@@ -94,7 +114,7 @@ const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
               Hủy bỏ
             </Button>
             <Button variant="primary" type="submit" className="h-14 px-10 rounded-2xl shadow-2xl shadow-blue-500/20 font-bold">
-              Tạo Thư Viện
+              {isEditMode ? "Cập nhật" : "Tạo Thư Viện"}
             </Button>
           </div>
         </form>
@@ -103,4 +123,4 @@ const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
   );
 };
 
-export default CreateLibraryModal;
+export default LibraryModal;
