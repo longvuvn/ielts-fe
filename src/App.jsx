@@ -1,18 +1,16 @@
-import { React } from 'react'
-import Header from './components/layouts/Header'
-import Footer from './components/layouts/Footer'
-import HomePage from './pages/Home'
-
+import React from "react";
+import Header from "./components/layouts/Header/index.jsx";
+import Footer from "./components/layouts/Footer";
+import { Outlet } from "react-router-dom";
 
 function App() {
-
   return (
     <>
       <Header />
-      <HomePage />
+      <Outlet />
       <Footer />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
