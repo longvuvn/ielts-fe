@@ -7,8 +7,7 @@ import { useNavigate } from "react-router-dom";
 import KanbanBoard from "../../components/kanban/KanbanBoard";
 import Button from "../../components/button/button.home";
 import FlashcardModal from "../../components/modal/FlashcardModal";
-import CreateLibraryModal from "../../components/modal/CreateLibraryModal";
-import UpdateLibraryModal from "../../components/modal/UpdateLibraryModal";
+import LibraryModal from "../../components/modal/LibraryModal";
 
 
 import {
@@ -423,16 +422,11 @@ const LibraryPage = () => {
         </div>
       </div>
 
-      <CreateLibraryModal 
-        isOpen={showLibraryModal && !editingItem} 
+      <LibraryModal 
+        isOpen={showLibraryModal} 
         onClose={handleCloseModals} 
         onSubmit={handleCreateLibrary} 
-      />
-      <UpdateLibraryModal 
-        isOpen={showLibraryModal && editingItem?.type === 'LIBRARY'} 
-        onClose={handleCloseModals} 
-        onSubmit={handleCreateLibrary} 
-        initialData={editingItem} 
+        initialData={editingItem?.type === 'LIBRARY' ? editingItem : null}
       />
       <FlashcardModal
         key={editingItem?.id || 'card-new'}

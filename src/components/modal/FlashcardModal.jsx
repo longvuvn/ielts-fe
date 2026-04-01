@@ -1,10 +1,18 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
 import Button from "../../components/button/button.home";
 
 const FlashcardModal = ({ isOpen, onClose, onSubmit, targetLibraryId, initialData }) => {
-  const [title, setTitle] = useState(initialData?.title || "");
-  const [description, setDescription] = useState(initialData?.description || "");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+
+  // Sync or reset state when modal opens or initialData changes
+  useEffect(() => {
+    if (isOpen) {
+      setTitle(initialData?.title || "");
+      setDescription(initialData?.description || "");
+    }
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
