@@ -55,31 +55,33 @@ const KanbanBoard = ({
   return (
     <div 
       onDragEnd={onDragEnd}
-      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-start"
+      className="flex flex-row gap-5 pt-3 items-start overflow-x-auto pb-10 custom-scrollbar-horizontal select-none"
+      style={{ scrollBehavior: 'smooth' }}
     >
       {libraries.map((lib, index) => (
-        <LibraryColumn
-          key={`${lib.id}-${index}`}
-          library={lib}
-          cards={cardsByLibrary[lib.id] || []}
-          onEditLibrary={onEditLibrary}
-          onDeleteLibrary={onDeleteLibrary}
-          onAddCard={onAddCard}
-          onEditCard={onEditCard}
-          onDeleteCard={onDeleteCard}
-          onClickCard={onClickCard}
-          onDragStart={onDragStart}
-          onDragEnd={onDragEnd}
-          onDragOver={onDragOver}
-          onDrop={onDrop}
-          isDragOver={dragOverLibraryId === lib.id}
-        />
+        <div key={`${lib.id}-${index}`} className="min-w-[380px] max-w-[380px] flex-shrink-0 animate-fade-slide-in" style={{ animationDelay: `${index * 100}ms` }}>
+          <LibraryColumn
+            library={lib}
+            cards={cardsByLibrary[lib.id] || []}
+            onEditLibrary={onEditLibrary}
+            onDeleteLibrary={onDeleteLibrary}
+            onAddCard={onAddCard}
+            onEditCard={onEditCard}
+            onDeleteCard={onDeleteCard}
+            onClickCard={onClickCard}
+            onDragStart={onDragStart}
+            onDragEnd={onDragEnd}
+            onDragOver={onDragOver}
+            onDrop={onDrop}
+            isDragOver={dragOverLibraryId === lib.id}
+          />
+        </div>
       ))}
 
       {/* ADD LIBRARY PLACEHOLDER */}
       <div
         onClick={onOpenCreateLibrary}
-        className="premium-card min-h-[280px] bg-transparent border-2 border-dashed border-white/5 hover:border-accent/40 hover:bg-accent/5 flex flex-col items-center justify-center gap-4 cursor-pointer group transition-all duration-300 hover:scale-[1.01]"
+        className="min-w-[320px] flex-shrink-0 premium-card min-h-[280px] bg-transparent border-2 border-dashed border-white/5 hover:border-accent/40 hover:bg-accent/5 flex flex-col items-center justify-center gap-4 cursor-pointer group transition-all duration-300 hover:scale-[1.01]"
       >
         <div className="w-14 h-14 rounded-full border-2 border-dashed border-white/10 flex items-center justify-center text-text-muted group-hover:text-accent group-hover:border-accent/40 transition-colors">
           <Plus size={32} />

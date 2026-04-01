@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Space, Card, Typography, message, Skeleton } from 'antd';
+import { Table, Tag, Space, Card, Typography, message, Skeleton, Avatar } from 'antd';
 import { UserOutlined, MailOutlined, CalendarOutlined } from '@ant-design/icons';
 import { getAllLearnersAPI } from '../../service/api/api.admin';
+import { getFullImageUrl } from '../../utils';
 
 const { Title } = Typography;
 
@@ -41,6 +42,19 @@ const LearnerPage = () => {
   };
 
   const columns = [
+    {
+      title: 'Ảnh',
+      dataIndex: 'avatarUrl',
+      key: 'avatarUrl',
+      render: (url, record) => (
+        <Avatar 
+          src={getFullImageUrl(url)} 
+          icon={<UserOutlined />} 
+          className="bg-blue-100 text-blue-500"
+          alt={record.fullName}
+        />
+      ),
+    },
     {
       title: 'Họ tên',
       dataIndex: 'fullName',

@@ -18,6 +18,7 @@ export const useGoogleAuth = () => {
 
             // 2. Gửi Token xuống Spring Boot
             const res = await loginWithGoogleAPI(idToken);
+            console.log("🔍 API Login Response Data:", res.data); // DEBUG DỮ LIỆU BACKEND
 
             // 3. XỬ LÝ KẾT QUẢ
             if (res && (res.status === 200 || res.status === 201)) {
@@ -26,7 +27,7 @@ export const useGoogleAuth = () => {
 
                 loginSuccess(
                     authResponseData.accessToken, 
-                    authResponseData.refreshToken, // Pass refresh token here
+                    authResponseData.refreshToken,
                     {
                         learnerId: authResponseData.learnerId,
                         role: authResponseData.role,
@@ -35,7 +36,7 @@ export const useGoogleAuth = () => {
                     }
                 );
 
-                if (onSuccessCallback) {
+                if (typeof onSuccessCallback === "function") {
                     onSuccessCallback();
                 }
             }

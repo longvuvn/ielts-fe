@@ -435,10 +435,6 @@ const PracticePage = () => {
                         </span>
                       </div>
                     </div>
-                    <p
-                      className="text-slate-700 font-medium leading-relaxed mb-8 text-lg"
-                      dangerouslySetInnerHTML={{ __html: q.content }}
-                    />
                     
                     {isWriting ? (
                       <div className="space-y-4">
@@ -543,7 +539,7 @@ const PracticePage = () => {
               </div>
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20 max-w-md">
                 <p className="text-sm italic leading-relaxed">
-                  "{aiResult.overallFeedback?.substring(0, 150)}..."
+                  `{aiResult.overallFeedback?.substring(0, 150)}...`
                 </p>
               </div>
             </div>
