@@ -24,3 +24,18 @@ export const updateDeckVocabularyAPI = (id, { flashcardId, vocabularyId, userDef
 export const searchVocabularyAPI = (word, page = 0, size = 10) => {
     return axios.get(`/api/v1/vocabularies/search?word=${encodeURIComponent(word)}&page=${page}&size=${size}`);
 };
+
+// Tăng số lần luyện tập vocabulary
+export const incrementFlashcardCountAPI = (id) => {
+    return axios.patch(`/api/v1/deck-vocabulary/${id}/count`);
+};
+
+// Cập nhật kết quả luyện tập (đúng/sai)
+export const reviewDeckVocabularyAPI = (id, isCorrect) => {
+    return axios.patch(`/api/v1/deck-vocabulary/${id}/review`, { isCorrect });
+};
+
+// Lấy dữ liệu trắc nghiệm cho một từ vựng cụ thể
+export const getDeckVocabularyQuizAPI = (deckVocabularyId) => {
+    return axios.get(`/api/v1/deck-vocabulary/study/quiz/${deckVocabularyId}`);
+};

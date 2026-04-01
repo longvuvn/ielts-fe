@@ -42,7 +42,7 @@ const UpdateLibraryModal = ({ isOpen, onClose, onSubmit, initialData }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[9999] p-6" 
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-start justify-center z-[9999] p-6 pt-[10vh]" 
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(e); }}
     >
       <div 

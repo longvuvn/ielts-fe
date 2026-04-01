@@ -23,7 +23,7 @@ const UserLoginPage = () => {
         </p>
 
         <button
-          onClick={() => handleGoogleLogin(() => navigate("/library"))}
+          onClick={() => handleGoogleLogin(() => navigate("/"))}
           disabled={isAuthLoading}
           className="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-gray-800 font-bold py-4 rounded-xl hover:bg-gray-50 hover:border-blue-200 transition-all disabled:opacity-70 shadow-sm"
         >

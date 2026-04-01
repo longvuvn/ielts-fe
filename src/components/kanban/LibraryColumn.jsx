@@ -27,33 +27,38 @@ const LibraryColumn = ({
     >
       {/* COLUMN HEADER */}
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-2.5 overflow-hidden flex-1">
-          <div className="p-2 rounded-lg bg-accent/10 text-accent">
-            <BookOpen size={16} />
+        <div className="flex items-center gap-3 overflow-hidden flex-1">
+          <div className="flex-shrink-0 p-2.5 rounded-xl bg-accent/10 text-accent shadow-sm border border-accent/5">
+            <BookOpen size={20} />
           </div>
-          <span className="font-bold text-sm text-text-primary truncate font-display tracking-tight">
-            {library.name}
-          </span>
-          <span className="bg-accent/10 text-accent border border-accent/20 rounded-full px-2.5 py-0.5 text-[10px] font-bold">
-            {cards.length}
-          </span>
+          <div className="flex flex-col min-w-0">
+            <h3 className="font-bold text-base text-text-primary truncate font-display tracking-tight leading-tight group-hover/col:text-accent transition-colors duration-300">
+              {library.name}
+            </h3>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="flex h-1.5 w-1.5 rounded-full bg-accent animate-pulse" />
+              <span className="text-[10px] font-black text-text-muted uppercase tracking-[0.1em]">
+                {cards.length} Flashcards
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Action buttons - Hover Only */}
-        <div className="flex gap-1 items-center opacity-0 group-hover/col:opacity-100 transition-opacity duration-200">
+        <div className="flex gap-1.5 items-center opacity-0 group-hover/col:opacity-100 transition-all duration-300 transform translate-x-2 group-hover/col:translate-x-0">
           <button
             onClick={() => onEditLibrary(library)}
             title="Sửa thư viện"
-            className="p-1.5 rounded-lg text-text-muted hover:text-accent hover:bg-accent/10 transition-all"
+            className="p-2.5 rounded-xl text-text-muted hover:text-accent hover:bg-accent/10 transition-all border border-transparent hover:border-accent/10 bg-white/5"
           >
-            <Settings2 size={14} />
+            <Settings2 size={16} />
           </button>
           <button
             onClick={() => onDeleteLibrary(library.id)}
             title="Xóa thư viện"
-            className="p-1.5 rounded-lg text-red-400/60 hover:text-red-400 hover:bg-red-400/10 transition-all"
+            className="p-2.5 rounded-xl text-red-400/60 hover:text-red-500 hover:bg-red-500/10 transition-all border border-transparent hover:border-red-500/10 bg-white/5"
           >
-            <Trash2 size={14} />
+            <Trash2 size={16} />
           </button>
         </div>
       </div>

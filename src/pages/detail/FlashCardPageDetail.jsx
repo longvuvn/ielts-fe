@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { message } from "antd";
-import { 
-  ArrowLeft, Plus, Search, X, Volume2, Trash2, 
-  ChevronLeft, ChevronRight, Edit2, Target, BookOpen, 
-  Sparkles, RotateCcw, SearchIcon
+import {
+  ArrowLeft, Plus, Search, X, Volume2, Trash2,
+  ChevronLeft, ChevronRight, Edit2, Target, BookOpen,
+  Sparkles, RotateCcw, SearchIcon, CheckCircle,
+  CheckCircle2, AlertCircle, Trophy, LayoutGrid, GraduationCap
 } from "lucide-react";
 import Button from "../../components/button/button.home";
 import {
@@ -17,9 +18,9 @@ import {
 
 const fixDefinitionText = (text = "") =>
   text
-    .replace(/([a-z])([A-Z])/g, "$1 $2")        
-    .replace(/([.,;:])([^\s])/g, "$1 $2")           
-    .replace(/([a-z])(\d)/g, "$1 $2")      
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/([.,;:])([^\s])/g, "$1 $2")
+    .replace(/([a-z])(\d)/g, "$1 $2")
     .trim();
 
 
@@ -40,9 +41,8 @@ const VocabFlipCard = ({ vocab, onDelete, onEdit, onSpeak, index }) => {
       style={{ animationDelay: `${index * 30}ms` }}
     >
       <div
-        className={`relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer ${
-          flipped ? "rotate-y-180" : ""
-        }`}
+        className={`relative w-full h-full transition-all duration-500 preserve-3d cursor-pointer ${flipped ? "rotate-y-180" : ""
+          }`}
         onClick={() => setFlipped(!flipped)}
       >
         {/* FRONT */}
@@ -204,7 +204,7 @@ const SearchModal = ({ isOpen, onClose, searchQuery, setSearchQuery, searchResul
 // ─── EDIT MODAL ─────────────────────────────────────────────────────────────
 const EditVocabModal = ({ isOpen, onClose, vocab, onSave }) => {
   const [definition, setDefinition] = useState(vocab?.userDefinition || "");
-  
+
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center z-[3000] p-6" onClick={onClose}>
@@ -232,95 +232,21 @@ const EditVocabModal = ({ isOpen, onClose, vocab, onSave }) => {
   );
 };
 
-// ─── STUDY MODE ─────────────────────────────────────────────────────────────
-const StudyMode = ({ vocabs, onClose }) => {
-  const [index, setIndex] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const current = vocabs[index];
-
-  const go = (dir) => { setFlipped(false); setTimeout(() => setIndex((i) => i + dir), 150); };
-  const speak = (text) => {
-    if ("speechSynthesis" in window) {
-      const u = new SpeechSynthesisUtterance(text); u.lang = "en-US"; u.rate = 0.9;
-      window.speechSynthesis.speak(u);
-    }
-  };
-
-  return (
-    <div className="fixed inset-0 bg-white z-[2000] flex flex-col p-8 lg:p-12 overflow-hidden animate-fade-slide-in">
-      <div className="flex justify-between items-center mb-12 max-w-7xl mx-auto w-full">
-        <div className="flex items-center gap-4">
-          <div className="p-3 bg-blue-50 text-accent rounded-2xl shadow-sm border border-blue-100"><Target size={24} /></div>
-          <div>
-            <h2 className="text-slate-900 font-bold font-display text-xl">Luyện tập ghi nhớ</h2>
-            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mt-0.5">Mastering {vocabs.length} Key Terms</p>
-          </div>
-        </div>
-        <button onClick={onClose} className="p-3.5 text-slate-400 hover:text-slate-900 hover:bg-slate-50 rounded-[20px] transition-all border border-slate-100">
-          <X size={24} />
-        </button>
-      </div>
-
-      <div className="flex-1 flex flex-col items-center justify-center max-w-4xl mx-auto w-full">
-        <div className="flex items-center gap-6 mb-16 w-full max-w-md">
-          <span className="text-slate-400 font-mono text-xs font-bold">{index + 1} / {vocabs.length}</span>
-          <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-accent shadow-[0_0_15px_rgba(59,125,255,0.4)] transition-all duration-500 ease-out"
-              style={{ width: `${((index + 1) / vocabs.length) * 100}%` }}
-            />
-          </div>
-        </div>
-
-        <div className="perspective-1200 w-full max-w-2xl aspect-[1.6/1]">
-          <div
-            onClick={() => setFlipped(!flipped)}
-            className={`relative w-full h-full transition-all duration-700 preserve-3d cursor-pointer ${flipped ? "rotate-y-180" : ""}`}
-          >
-            <div className="absolute inset-0 backface-hidden rounded-[48px] premium-card bg-white border-slate-200 flex flex-col items-center justify-center p-12 text-center shadow-xl">
-              <span className="text-[11px] font-black text-accent uppercase tracking-[0.4em] mb-12 bg-blue-50 px-4 py-1.5 rounded-full">Word to Recall</span>
-              <p className="text-5xl lg:text-7xl font-bold font-display text-slate-900 mb-4 tracking-tight">{current?.word}</p>
-              {current?.phonetic && <p className="text-xl font-mono text-slate-400 mb-12">/{current.phonetic}/</p>}
-              <Button variant="secondary" onClick={(e) => { e.stopPropagation(); speak(current?.word); }} className="h-14 px-10 rounded-2xl" icon={Volume2}>
-                Listen Pronunciation
-              </Button>
-            </div>
-            <div className="absolute inset-0 backface-hidden rotate-y-180 rounded-[48px] premium-card bg-slate-900 border-slate-800 flex flex-col items-center justify-center p-12 text-center shadow-2xl">
-              <span className="text-[11px] font-black text-accent uppercase tracking-[0.4em] mb-12">Correct Definition</span>
-              <p className="text-2xl lg:text-4xl font-bold leading-relaxed text-white font-display px-4">{current?.userDefinition}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex gap-8 mt-20">
-          <button disabled={index === 0} onClick={() => go(-1)} className="w-16 h-16 rounded-2xl bg-white border-2 border-slate-100 text-slate-400 disabled:opacity-30 hover:text-accent hover:border-accent/30 transition-all active:scale-90 flex items-center justify-center shadow-sm">
-            <ChevronLeft size={32} />
-          </button>
-          <button disabled={index === vocabs.length - 1} onClick={() => go(1)} className="w-24 h-20 rounded-[24px] bg-accent text-white shadow-2xl shadow-blue-500/30 disabled:opacity-30 hover:bg-blue-600 transition-all active:scale-95 flex items-center justify-center">
-            <ChevronRight size={40} />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 const FlashcardDetailPage = () => {
   const { flashcardId } = useParams();
   const navigate = useNavigate();
   const [vocabs, setVocabs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [studyMode, setStudyMode] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [showManualAdd, setShowManualAdd] = useState(false);
-  
+
   const [manualWord, setManualWord] = useState("");
   const [manualMeaning, setManualMeaning] = useState("");
-  
+
   const [editingVocab, setEditingVocab] = useState(null);
 
   const fetchVocabs = useCallback(async () => {
@@ -413,7 +339,6 @@ const FlashcardDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 animate-fade-slide-in flex flex-col">
-      {/* ── TOPBAR ── */}
       <div className="sticky top-0 z-[100] border-b border-slate-100 bg-white/80 backdrop-blur-xl shadow-sm">
         <div className="max-w-[1600px] mx-auto px-8 py-6 flex items-center justify-between">
           <div className="flex items-center gap-8">
@@ -425,9 +350,30 @@ const FlashcardDetailPage = () => {
           </div>
           <div className="flex gap-3">
             {vocabs.length > 0 && (
-              <Button variant="primary" onClick={() => setStudyMode(true)} icon={Target} className="shadow-xl shadow-blue-500/20 px-8 h-12 rounded-[18px]">
-                Luyện tập ngay
-              </Button>
+              <>
+                <Button 
+                  variant="primary" 
+                  onClick={() => navigate(`/flashcards/${flashcardId}/study`)} 
+                  icon={Target} 
+                  className="shadow-xl shadow-blue-500/20 px-8 h-12 rounded-[18px]"
+                >
+                  Ghi nhớ (Classic)
+                </Button>
+                <Button 
+                  variant="secondary" 
+                  onClick={() => {
+                    if (vocabs.length < 4) {
+                      message.warning("Bạn cần ít nhất 4 từ vựng để có thể luyện tập trắc nghiệm!");
+                      return;
+                    }
+                    navigate(`/flashcards/${flashcardId}/quiz`);
+                  }} 
+                  icon={GraduationCap} 
+                  className="px-8 h-12 rounded-[18px] border-slate-200"
+                >
+                  Luyện tập (Quiz)
+                </Button>
+              </>
             )}
             <button
               onClick={() => { setShowSearch(true); setSearchQuery(""); setSearchResults([]); }}
@@ -445,7 +391,6 @@ const FlashcardDetailPage = () => {
         </div>
       </div>
 
-      {/* ── SEARCH MODAL ── */}
       <SearchModal
         isOpen={showSearch}
         onClose={() => setShowSearch(false)}
@@ -457,7 +402,6 @@ const FlashcardDetailPage = () => {
       />
 
       <div className="flex-1 p-8 lg:p-12 max-w-[1600px] mx-auto w-full">
-        {/* MANUAL ADD PANEL */}
         {showManualAdd && (
           <div className="mb-12 animate-fade-slide-in relative overflow-hidden bg-white border border-slate-200 rounded-[32px] p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
             <div className="absolute top-0 left-0 w-1.5 h-full bg-accent" />
@@ -467,7 +411,7 @@ const FlashcardDetailPage = () => {
             >
               <X size={20} />
             </button>
-            
+
             <div className="flex items-center gap-4 mb-10">
               <div className="p-3 bg-blue-50 text-accent rounded-2xl shadow-sm border border-blue-100">
                 <Plus size={20} />
@@ -513,7 +457,6 @@ const FlashcardDetailPage = () => {
           </div>
         )}
 
-        {/* WORD CARD GRID */}
         {isLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
@@ -549,14 +492,13 @@ const FlashcardDetailPage = () => {
         )}
       </div>
 
-      <EditVocabModal 
+      <EditVocabModal
         key={editingVocab?.id || "empty"}
-        isOpen={!!editingVocab} 
-        onClose={() => setEditingVocab(null)} 
-        vocab={editingVocab} 
-        onSave={handleUpdateVocab} 
+        isOpen={!!editingVocab}
+        onClose={() => setEditingVocab(null)}
+        vocab={editingVocab}
+        onSave={handleUpdateVocab}
       />
-      {studyMode && vocabs.length > 0 && <StudyMode vocabs={vocabs} onClose={() => setStudyMode(false)} />}
     </div>
   );
 };

@@ -31,12 +31,12 @@ const FlashcardModal = ({ isOpen, onClose, onSubmit, targetLibraryId, initialDat
   };
 
   return (
-    <div 
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[9999] p-6" 
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-start justify-center z-[9999] p-6 pt-[10vh]"
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(e); }}
     >
-      <div 
-        className="bg-white border border-slate-200 rounded-[32px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in relative" 
+      <div
+        className="bg-white border border-slate-200 rounded-[32px] p-10 py-12 w-full max-w-lg shadow-2xl animate-fade-slide-in relative"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center mb-8">
@@ -48,9 +48,9 @@ const FlashcardModal = ({ isOpen, onClose, onSubmit, targetLibraryId, initialDat
               Thêm nội dung mới vào bộ sưu tập
             </p>
           </div>
-          <button 
+          <button
             type="button"
-            onClick={handleClose} 
+            onClick={handleClose}
             className="p-2.5 rounded-2xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
           >
             <X size={20} />

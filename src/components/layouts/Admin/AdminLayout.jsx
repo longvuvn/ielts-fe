@@ -3,6 +3,7 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   UserOutlined,
+  FileTextOutlined,
   BookOutlined,
   GlobalOutlined,
   DashboardOutlined,
@@ -12,6 +13,7 @@ import {
 import { Layout, Menu, Button, theme, Avatar, Dropdown, message } from 'antd';
 import { useNavigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../../../hook/useAuth';
+import { getFullImageUrl } from '../../../utils';
 
 const { Header, Sider, Content } = Layout;
 
@@ -50,6 +52,11 @@ const AdminLayout = () => {
       key: '/admin/learners',
       icon: <UserOutlined />,
       label: 'Người học',
+    },
+    {
+      key: '/admin/exams',
+      icon: <FileTextOutlined />,
+      label: 'Bài thi',
     },
     {
       key: '/admin/topics',
@@ -95,7 +102,11 @@ const AdminLayout = () => {
           <div className="flex items-center gap-4">
             <span className="text-gray-500 hidden sm:inline">Xin chào, {user?.name || 'Admin'}</span>
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-              <Avatar icon={<UserOutlined />} className="bg-blue-500 cursor-pointer" />
+              <Avatar 
+                src={getFullImageUrl(user?.avatarUrl)} 
+                icon={<UserOutlined />} 
+                className="bg-blue-500 cursor-pointer" 
+              />
             </Dropdown>
           </div>
         </Header>

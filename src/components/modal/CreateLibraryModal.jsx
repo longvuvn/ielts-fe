@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { X } from "lucide-react";
 import Button from "../../components/button/button.home";
 
@@ -7,14 +7,6 @@ const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
   const [description, setDescription] = useState("");
   const [isPublic, setIsPublic] = useState(true);
 
-  // Reset form when modal opens
-  useEffect(() => {
-    if (isOpen) {
-      setName("");
-      setDescription("");
-      setIsPublic(true);
-    }
-  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -41,7 +33,7 @@ const CreateLibraryModal = ({ isOpen, onClose, onSubmit }) => {
 
   return (
     <div 
-      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center z-[9999] p-6" 
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-start justify-center z-[999] p-6 pt-[10vh]" 
       onClick={(e) => { if (e.target === e.currentTarget) handleClose(e); }}
     >
       <div 

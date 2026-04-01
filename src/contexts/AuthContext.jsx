@@ -5,6 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import { AuthContext } from "./AuthContextInstance";
 import Cookies from "js-cookie";
 import { logoutAPI } from "../service/api/api.auth";
+import { getLearnerByIdAPI } from "../service/api/api.learner";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
@@ -23,6 +24,36 @@ export const AuthProvider = ({ children }) => {
 
     return () => unsubscribe();
   }, []);
+
+  // Fetch full user details if authenticated
+  useEffect(() => {
+    const fetchFullUserInfo = async () => {
+      if (isAuthenticated && user?.id) {
+        try {
+          const res = await getLearnerByIdAPI(user.id);
+          if (res && res.data) {
+            const fullUserData = res.data.data || res.data;
+            const updatedUser = {
+              ...user,
+              ...fullUserData,
+              name: fullUserData.fullName || fullUserData.name || user.name,
+              avatarUrl: fullUserData.avatarUrl || fullUserData.avatar || user.avatarUrl,
+            };
+            
+            // Only update if data actually changed to avoid unnecessary re-renders
+            if (JSON.stringify(updatedUser) !== JSON.stringify(user)) {
+              setUser(updatedUser);
+              localStorage.setItem("user_info", JSON.stringify(updatedUser));
+            }
+          }
+        } catch (error) {
+          console.error("Error fetching full user info:", error);
+        }
+      }
+    };
+
+    fetchFullUserInfo();
+  }, [isAuthenticated, user?.id]);
 
   const loginSuccess = (accessToken, refreshToken, userData) => {
     let decodedId = null;
