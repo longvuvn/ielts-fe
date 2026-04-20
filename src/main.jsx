@@ -25,6 +25,8 @@ import FlashCardQuizPage from "./pages/detail/FlashCardQuizPage.jsx";
 import HistoryPage from "./pages/Learner/HistoryPage.jsx";
 import ProfilePage from "./pages/Learner/ProfilePage.jsx";
 import ProtectedRoute from "./routers/ProtectedRoute.jsx";
+import WrongAnswerPracticePage from "./pages/Exam/WrongAnswerPracticePage.jsx";
+import MistakeLabPage from "./pages/Exam/MistakeLabPage.jsx";
 
 const router = createBrowserRouter([
   {
@@ -124,6 +126,10 @@ const router = createBrowserRouter([
       {
         path: "/exams/:examId/sections/:sectionId",
         element: <PracticePage />,
+      },
+      {
+        path: "/practice/wrong-answers",
+        element: <MistakeLabPage />,
       },
     ],
   },

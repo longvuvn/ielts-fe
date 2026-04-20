@@ -4,6 +4,7 @@ import { BookOpen, Search, Filter } from "lucide-react";
 import { getAllExamsAPI } from "../../service/api/api.exam";
 import TestCard from "../../components/card/TestCard";
 import { useNavigate } from "react-router-dom";
+import WrongAnswerBanner from "../../components/card/WrongAnswerBanner";
 
 const ExamListPage = () => {
   const [exams, setExams] = useState([]);
@@ -94,6 +95,10 @@ const ExamListPage = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-10">
+        <WrongAnswerBanner />
       </div>
 
       {/* EXAM GRID */}
