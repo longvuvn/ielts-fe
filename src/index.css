@@ -1,4 +1,77 @@
 @import "tailwindcss";
+
+@theme {
+  /* Colors - Light Educational Theme */
+  --color-page: #f8fafc;
+  --color-card: #ffffff;
+  --color-elevated: #ffffff;
+  
+  --color-text-primary: #1e293b;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  
+  --color-accent: #3b82f6;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  
+  --color-border-default: #e2e8f0;
+  --color-border-active: #3b82f6;
+  
+  /* Typography */
+  --font-display: "Inter", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "Inter", sans-serif;
+  
+  /* Radii */
+  --radius-xl: 20px;
+  
+  /* Shadow - Soft & Modern */
+  --shadow-glow: 0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05);
+  
+  /* Animations */
+  --animate-fade-slide-in: fadeSlideIn 0.5s ease-out forwards;
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-page text-text-primary font-body antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+@layer components {
+  .premium-card {
+    @apply bg-card border border-border-default rounded-[24px] transition-all duration-300 flex flex-col shadow-sm;
+  }
+  
+  .premium-card:hover {
+    @apply border-accent/30 -translate-y-1 shadow-xl shadow-blue-500/5;
+  }
+  
+  .premium-button-primary {
+    @apply bg-accent text-white px-8 py-3 rounded-2xl font-bold transition-all duration-300 hover:bg-blue-600 hover:shadow-lg hover:shadow-blue-500/25 active:scale-95 disabled:opacity-50;
+  }
+  
+  .premium-button-secondary {
+    @apply bg-white border-2 border-slate-100 text-slate-600 px-8 py-3 rounded-2xl font-bold transition-all duration-300 hover:border-accent hover:text-accent active:scale-95;
+  }
+  
+  .premium-input {
+    @apply bg-white border-2 border-slate-100 rounded-2xl px-5 py-3 text-text-primary transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-accent/10 focus:border-accent;
+  }
+  
+  .premium-badge {
+    @apply text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full inline-flex items-center;
+  }
+}
+
 @utility perspective {
   perspective: 1000px;
 }

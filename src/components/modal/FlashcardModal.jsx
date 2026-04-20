@@ -1,115 +1,93 @@
 import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import Button from "../../components/button/button.home";
 
-const FlashcardModal = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  initialData = null,
-  topics = [],
-}) => {
-  const [formData, setFormData] = useState({
-    front: "",
-    back: "",
-    topic: "",
-  });
+const FlashcardModal = ({ isOpen, onClose, onSubmit, targetLibraryId, initialData }) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
 
-  const [errors, setErrors] = useState({});
-
+  // Sync or reset state when modal opens or initialData changes
   useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    } else {
-      setFormData({ front: "", back: "", topic: "" });
+    if (isOpen) {
+      setTitle(initialData?.title || "");
+      setDescription(initialData?.description || "");
     }
-    setErrors({});
-  }, [initialData, isOpen]);
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.front.trim()) newErrors.front = "Front side cannot be empty";
-    if (!formData.back.trim()) newErrors.back = "Back side cannot be empty";
-    if (!formData.topic.trim()) newErrors.topic = "Topic is required";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-
-    onSubmit(formData);
-    setFormData({ front: "", back: "", topic: "" });
-    setErrors({});
-  };
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
+  const handleClose = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    onClose();
+  };
+
+  const handleSubmit = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!title.trim()) return;
+
+    onSubmit({
+      title: title.trim(),
+      description: description.trim(),
+      libraryId: targetLibraryId
+    });
+  };
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="sticky top-0 flex justify-between items-center p-6 border-b border-gray-200 bg-white z-10">
-          <h2 className="text-2xl font-bold text-gray-900">
-            {initialData ? "Edit Flashcard" : "Create Flashcard"}
-          </h2>
+    <div
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-start justify-center z-[9999] p-6 pt-[10vh]"
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(e); }}
+    >
+      <div
+        className="bg-white border border-slate-200 rounded-[32px] p-10 py-12 w-full max-w-lg shadow-2xl animate-fade-slide-in relative"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-slate-900 font-display text-2xl font-bold tracking-tight">
+              {initialData ? "Chỉnh sửa Flashcard" : "Tạo Flashcard Mới"}
+            </h3>
+            <p className="text-slate-500 text-xs mt-1 font-medium">
+              Thêm nội dung mới vào bộ sưu tập
+            </p>
+          </div>
           <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition"
+            type="button"
+            onClick={handleClose}
+            className="p-2.5 rounded-2xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          {/* ... (Giữ nguyên các thẻ input, textarea cho Front, Back, Topic của bạn) ... */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Ví dụ: Abandon (v)"
+            className="w-full ..."
+          />
 
-          {/* Ví dụ Front Input */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Front (Question/Word)
-            </label>
-            <textarea
-              name="front"
-              value={formData.front}
-              onChange={handleChange}
-              placeholder="Enter question or vocabulary word..."
-              className={`w-full px-4 py-3 rounded-lg border-2 transition-all focus:outline-none resize-none ${
-                errors.front
-                  ? "border-red-500 bg-red-50"
-                  : "border-gray-200 focus:border-blue-500"
-              }`}
-              rows="3"
-            />
-            {errors.front && (
-              <span className="text-red-600 text-sm mt-2">{errors.front}</span>
-            )}
-          </div>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Nhập nghĩa..."
+            rows={4}
+            className="w-full ..."
+          />
 
-          {/* ... (Các thẻ khác) ... */}
-
-          <div className="flex gap-3 pt-6">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-3 rounded-lg bg-black text-white font-semibold hover:bg-gray-800"
-            >
-              {initialData ? "Update" : "Create"}
-            </button>
+          <div className="flex gap-4 justify-end mt-12 pt-2">
+            <Button type="button" onClick={handleClose}>
+              Hủy bỏ
+            </Button>
+            <Button type="submit">
+              {initialData ? "Cập nhật" : "Tạo Flashcard"}
+            </Button>
           </div>
         </form>
       </div>

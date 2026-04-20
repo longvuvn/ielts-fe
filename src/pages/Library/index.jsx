@@ -1,342 +1,440 @@
-import React, { useState, useEffect } from "react";
-import { Plus, Search, Trash2 } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Plus, Library } from "lucide-react";
 import { message } from "antd";
+import { useAuth } from "../../hook/useAuth";
+import { useNavigate } from "react-router-dom";
 
-import CardList from "../../components/card/CardList";
+import KanbanBoard from "../../components/kanban/KanbanBoard";
+import Button from "../../components/button/button.home";
 import FlashcardModal from "../../components/modal/FlashcardModal";
 import LibraryModal from "../../components/modal/LibraryModal";
-import { useAuth } from "../../contexts/AuthContext";
+
+
 import {
   getAllLibrariesByLearnerIdAPI,
   createLibraryAPI,
+  updateLibraryAPI,
   deleteLibraryAPI,
+  searchLibraryAPI,
 } from "../../service/api/api.library";
-
 import {
   getFlashcardsByLibraryIdAPI,
   createFlashcardAPI,
+  updateFlashcardAPI,
   deleteFlashcardAPI,
 } from "../../service/api/api.flashcard";
+import { Search, Loader2, Users } from "lucide-react";
 
 const LibraryPage = () => {
-  // 1. STATE QUẢN LÝ DỮ LIỆU
-  const [libraries, setLibraries] = useState([]);
-  const [selectedLibraryId, setSelectedLibraryId] = useState(null);
-
-  const [cards, setCards] = useState([]);
-  const [editingCardId, setEditingCardId] = useState(null);
   const { user } = useAuth();
-  // 2. STATE QUẢN LÝ UI
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [showLibraryForm, setShowLibraryForm] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTopic, setSelectedTopic] = useState("All");
+  const navigate = useNavigate();
 
-  // State quản lý loading khi gọi API
+  const learnerId = user?.learnerId || user?.id;
+
+  const [libraries, setLibraries] = useState([]);
+  const [cardsByLibrary, setCardsByLibrary] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
-  // ==========================================
-  // 3. USE-EFFECT GỌI API KHI RENDER
-  // ==========================================
-  useEffect(() => {
-    fetchLibraries();
-  }, []);
+  // Search state
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
-  useEffect(() => {
-    if (selectedLibraryId) {
-      fetchCards(selectedLibraryId);
-    }
-  }, [selectedLibraryId]);
+  const [showLibraryModal, setShowLibraryModal] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [targetLibraryId, setTargetLibraryId] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
 
-  // ==========================================
-  // 4. HÀM GỌI API - LIBRARIES
-  // ==========================================
-  const fetchLibraries = async () => {
-    try {
-      setIsLoading(true);
+  const dragCard = useRef(null);
+  const [dragOverLibraryId, setDragOverLibraryId] = useState(null);
 
-      // KIỂM TRA BẢO VỆ: Nếu chưa có user hoặc mất ID thì không gọi API
-      if (!user || !user.id) {
-        console.warn("Chưa có ID User, tạm ngưng gọi API.");
-        return;
-      }
-
-      // TRUYỀN ID THẬT VÀO HÀM API
-      const res = await getAllLibrariesByLearnerIdAPI(user.id, 0, 50);
-
-      if (res && res.code === 200) {
-        const libs = res.data.content;
-        setLibraries(libs);
-        if (libs.length > 0 && !selectedLibraryId) {
-          setSelectedLibraryId(libs[0].id);
+  const handleSearch = async (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    
+    if (value.trim().length > 2) {
+      setIsSearching(true);
+      setShowSearchResults(true);
+      try {
+        const res = await searchLibraryAPI(value, 0, 10);
+        if (res && res.data) {
+          let results = [];
+          if (Array.isArray(res.data)) results = res.data;
+          else if (res.data.content) results = res.data.content;
+          else if (res.data.data) results = res.data.data;
+          
+          setSearchResults(results);
         }
+      } catch (error) {
+        console.error("Search error:", error);
+      } finally {
+        setIsSearching(false);
+      }
+    } else {
+      setSearchResults([]);
+      setShowSearchResults(false);
+    }
+  };
+
+  const fetchCardsForLibrary = useCallback(async (libraryId) => {
+    try {
+      const res = await getFlashcardsByLibraryIdAPI(libraryId, 0, 50);
+      if (res && (res.status === 200 || res.status === 201)) {
+        let cards = [];
+        if (Array.isArray(res.data)) {
+          cards = res.data;
+        } else if (res.data?.content && Array.isArray(res.data.content)) {
+          cards = res.data.content;
+        } else if (res.data?.data && Array.isArray(res.data.data)) {
+          cards = res.data.data;
+        }
+        
+        return cards.map((c) => ({
+          id: c.id,
+          title: c.title || c.name,
+          description: c.description,
+          libraryId,
+          is_Public: c.is_Public ?? true,
+          learnerId: c.learnerId,
+          createdAt: c.createdAt,
+          updatedAt: c.updatedAt
+        }));
       }
     } catch (error) {
-      message.error("Lỗi khi tải danh sách Thư viện!");
+      console.error("Error fetching flashcards:", error);
+    }
+    return [];
+  }, []);
+
+  const fetchLibraries = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await getAllLibrariesByLearnerIdAPI(learnerId, 0, 50);
+      if (res && (res.status === 200 || res.status === 201)) {
+        let libs = [];
+        if (Array.isArray(res.data)) {
+          libs = res.data;
+        } else if (res.data?.content && Array.isArray(res.data.content)) {
+          libs = res.data.content;
+        } else if (res.data?.data && Array.isArray(res.data.data)) {
+          libs = res.data.data;
+        }
+
+        setLibraries(libs);
+        const cardResults = await Promise.all(libs.map((lib) => fetchCardsForLibrary(lib.id)));
+        const map = {};
+        libs.forEach((lib, i) => { map[lib.id] = cardResults[i] || []; });
+        setCardsByLibrary(map);
+      }
+    } catch (error) {
+      console.error("Fetch libraries error:", error);
+      message.error(error?.message || "Lỗi khi tải dữ liệu!");
     } finally {
       setIsLoading(false);
     }
+  }, [learnerId, fetchCardsForLibrary]);
+
+  useEffect(() => {
+    if (learnerId) fetchLibraries();
+  }, [learnerId, fetchLibraries]);
+
+  const handleOpenEditLibrary = (library) => {
+    setEditingItem({ ...library, type: 'LIBRARY' });
+    setShowLibraryModal(true);
   };
-  const handleCreateLibrary = async (newLibraryName) => {
+
+  const handleOpenEditCard = (card) => {
+    setEditingItem({ ...card, type: 'FLASHCARD' });
+    setTargetLibraryId(card.libraryId);
+    setShowCardModal(true);
+  };
+
+  const handleCloseModals = useCallback(() => {
+    setShowLibraryModal(false);
+    setShowCardModal(false);
+    setEditingItem(null);
+    setTargetLibraryId(null);
+  }, []);
+
+  const handleCreateLibrary = async ({ name, description, is_Public }) => {
+    if (!learnerId) { message.error("Chưa đăng nhập!"); return; }
     try {
-      // KIỂM TRA BẢO VỆ
-      if (!user || !user.id) {
-        message.error("Lỗi xác thực, vui lòng đăng nhập lại!");
-        return;
-      }
-
-      // TRUYỀN THÊM ID THẬT CỦA USER VÀO HÀM TẠO
-      const res = await createLibraryAPI(newLibraryName, user.id);
-
-      if (res && res.code === 201) {
-        message.success("Tạo thư viện thành công!");
-        setShowLibraryForm(false);
-        await fetchLibraries(); // Tải lại danh sách mới
-        setSelectedLibraryId(res.data.id);
+      if (editingItem && editingItem.type === 'LIBRARY') {
+        const res = await updateLibraryAPI(editingItem.id, {
+          name, description, is_Public, learnerId,
+          createdAt: editingItem.createdAt,
+          updatedAt: new Date().toISOString()
+        });
+        if (res && (res.status === 200 || res.status === 201)) {
+          message.success("Cập nhật thành công!");
+          handleCloseModals();
+          fetchLibraries();
+        }
+      } else {
+        const res = await createLibraryAPI({ name, description, is_Public: String(is_Public), learnerId });
+        if (res && (res.status === 201 || res.status === 200)) {
+          message.success("Tạo thư viện thành công!");
+          handleCloseModals();
+          fetchLibraries();
+        }
       }
     } catch (error) {
-      message.error("Không thể tạo thư viện lúc này.");
+      message.error(error?.message || "Thao tác thất bại!");
     }
   };
 
   const handleDeleteLibrary = async (libraryId) => {
-    if (window.confirm("Bạn có chắc chắn muốn xóa thư viện này?")) {
-      try {
-        const res = await deleteLibraryAPI(libraryId);
-        if (res && res.code === 200) {
-          message.success("Xóa thư viện thành công!");
-          // Nếu xóa thư viện đang chọn, reset lại lựa chọn
-          if (selectedLibraryId === libraryId) {
-            setSelectedLibraryId(null);
-          }
-          fetchLibraries();
-        }
-      } catch (error) {
-        message.error("Xóa thất bại!");
-      }
-    }
-  };
-
-  const fetchCards = async (libraryId) => {
+    if (!window.confirm("Xóa thư viện này và toàn bộ thẻ bên trong?")) return;
     try {
-      const res = await getFlashcardsByLibraryIdAPI(libraryId, 0, 50);
-      if (res && res.code === 200) {
-        const mappedCards = res.data.content.map((card) => ({
-          id: card.id,
-          front: card.title, // Đổi tên field cho khớp UI
-          back: card.description, // Đổi tên field cho khớp UI
-          topic: card.status || "ACTIVE",
-        }));
-        setCards(mappedCards);
+      const res = await deleteLibraryAPI(libraryId);
+      if (res && res.status === 200) {
+        message.success("Đã xóa thư viện!");
+        setLibraries((prev) => prev.filter((l) => l.id !== libraryId));
+        setCardsByLibrary((prev) => { const next = { ...prev }; delete next[libraryId]; return next; });
       }
     } catch (error) {
-      message.error("Lỗi khi tải Flashcards!");
+      message.error(error?.message || "Xóa thất bại!");
     }
   };
 
-  const handleSaveCard = async (cardData) => {
-    if (!selectedLibraryId) {
-      message.warning("Vui lòng chọn thư viện trước!");
-      return;
-    }
+  const handleOpenAddCard = (libraryId) => {
+    setTargetLibraryId(libraryId);
+    setEditingItem(null);
+    setShowCardModal(true);
+  };
 
+  const handleCreateFlashcard = async ({ title, description, libraryId }) => {
     try {
-      if (editingCardId) {
-        // Gọi API Update (Hiện bạn chưa có hàm Update, tạm thời để lại TODO)
-        message.info("Chức năng cập nhật đang được hoàn thiện!");
+      if (editingItem && editingItem.type === 'FLASHCARD') {
+        const res = await updateFlashcardAPI(editingItem.id, {
+          title, description, libraryId, status: "ACTIVE"
+        });
+        if (res && res.status === 200) {
+          message.success("Cập nhật thành công!");
+          handleCloseModals();
+          setCardsByLibrary(prev => {
+            const next = { ...prev };
+            next[libraryId] = next[libraryId].map(c => c.id === editingItem.id ? { ...c, title, description } : c);
+            return next;
+          });
+        }
       } else {
-        // UI gửi lên: front, back. Backend cần: title, description
-        const res = await createFlashcardAPI(
-          cardData.front, // title
-          cardData.back, // description
-          selectedLibraryId, // libraryId
-        );
-
-        if (res && res.code === 201) {
-          message.success("Thêm thẻ Flashcard thành công!");
-          setIsFormOpen(false);
-          fetchCards(selectedLibraryId); // Load lại danh sách thẻ
+        const res = await createFlashcardAPI({ title, description, libraryId });
+        if (res && (res.status === 201 || res.status === 200)) {
+          const newCard = {
+            id: res.data?.id || res.data?.data?.id,
+            title, description, libraryId,
+            learnerId, is_Public: true,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          setCardsByLibrary((prev) => ({
+            ...prev,
+            [libraryId]: [...(prev[libraryId] || []), newCard],
+          }));
+          message.success("Tạo flashcard thành công!");
+          handleCloseModals();
         }
       }
     } catch (error) {
-      message.error("Không thể lưu thẻ!");
+      message.error(error?.message || "Thao tác thất bại!");
     }
   };
 
   const handleDeleteCard = async (cardId) => {
-    if (window.confirm("Bạn có muốn xóa thẻ này?")) {
-      try {
-        const res = await deleteFlashcardAPI(cardId);
-        if (res && res.code === 200) {
-          message.success("Đã xóa thẻ!");
-          fetchCards(selectedLibraryId); // Load lại danh sách thẻ
-        }
-      } catch (error) {
-        message.error("Lỗi khi xóa thẻ!");
+    if (!window.confirm("Xóa flashcard này?")) return;
+    try {
+      const res = await deleteFlashcardAPI(cardId);
+      if (res && res.status === 200) {
+        message.success("Đã xóa flashcard!");
+        setCardsByLibrary((prev) => {
+          const next = {};
+          for (const libId in prev) {
+            next[libId] = prev[libId].filter((c) => c.id !== cardId);
+          }
+          return next;
+        });
       }
+    } catch (error) {
+      message.error(error?.message || "Lỗi khi xóa!");
     }
   };
 
-  const handleEditCard = (cardId) => {
-    setEditingCardId(cardId);
-    setIsFormOpen(true);
+  const handleClickCard = (cardId) => { navigate(`/flashcards/${cardId}`); };
+
+  const handleDragStart = (e, card) => {
+    let fromLibraryId = null;
+    for (const libId in cardsByLibrary) {
+      if (cardsByLibrary[libId].find((c) => c.id === card.id)) { fromLibraryId = libId; break; }
+    }
+    dragCard.current = { card, fromLibraryId };
+    e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleSpeak = (text) => {
-    if ("speechSynthesis" in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-      window.speechSynthesis.speak(utterance);
+  const handleDragOver = (e, libraryId) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverLibraryId(libraryId);
+  };
+
+  const handleDrop = async (e, toLibraryId) => {
+    e.preventDefault();
+    setDragOverLibraryId(null);
+    if (!dragCard.current) return;
+    const { card, fromLibraryId } = dragCard.current;
+    dragCard.current = null;
+    if (fromLibraryId === toLibraryId) return;
+
+    setCardsByLibrary((prev) => ({
+      ...prev,
+      [fromLibraryId]: (prev[fromLibraryId] || []).filter((c) => c.id !== card.id),
+      [toLibraryId]: [...(prev[toLibraryId] || []), { ...card, libraryId: toLibraryId }],
+    }));
+
+    try {
+      const res = await updateFlashcardAPI(card.id, {
+        title: card.title,
+        description: card.description,
+        libraryId: toLibraryId,
+        status: "ACTIVE"
+      });
+      if (res && (res.status === 200 || res.status === 201)) {
+        message.success("Đã chuyển flashcard thành công!");
+      }
+    } catch (error) {
+      console.error("Lỗi khi chuyển flashcard:", error);
+      message.error(error?.message || "Không thể chuyển flashcard!");
+      setCardsByLibrary((prev) => ({
+        ...prev,
+        [toLibraryId]: (prev[toLibraryId] || []).filter((c) => c.id !== card.id),
+        [fromLibraryId]: [...(prev[fromLibraryId] || []), card],
+      }));
     }
   };
 
-  // ==========================================
-  // 6. TÍNH TOÁN DỮ LIỆU HIỂN THỊ
-  // ==========================================
-  const uniqueTopics = ["All", ...new Set(cards.map((card) => card.topic))];
-  const editingCard = cards.find((card) => card.id === editingCardId);
-  const currentLibrary = libraries.find((lib) => lib.id === selectedLibraryId);
+  const handleDragEnd = () => { setDragOverLibraryId(null); dragCard.current = null; };
 
-  // ==========================================
-  // 7. RENDER GIAO DIỆN CHÍNH
-  // ==========================================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-5xl font-bold text-gray-900 mb-2">
-            Flashcard Library
-          </h1>
-          <p className="text-lg text-gray-600">
-            Hệ thống đồng bộ trực tiếp với Backend Spring Boot
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* CỘT TRÁI - DANH SÁCH LIBRARIES */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">Libraries</h2>
-                <button
-                  onClick={() => setShowLibraryForm(true)}
-                  className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
-                >
-                  <Plus size={20} />
-                </button>
-              </div>
-
-              <div className="space-y-2 max-h-[calc(100vh-300px)] overflow-y-auto pr-2">
-                {isLoading ? (
-                  <p className="text-sm text-gray-500 text-center py-4">
-                    Đang tải...
-                  </p>
-                ) : libraries.length === 0 ? (
-                  <p className="text-sm text-gray-500 text-center py-4">
-                    Chưa có thư viện nào
-                  </p>
-                ) : (
-                  libraries.map((library) => (
-                    <div
-                      key={library.id}
-                      className={`p-3 rounded-lg border-2 transition-all cursor-pointer ${
-                        selectedLibraryId === library.id
-                          ? "bg-blue-50 border-blue-300 shadow-sm"
-                          : "bg-white border-gray-100 hover:border-gray-300"
-                      }`}
-                      onClick={() => setSelectedLibraryId(library.id)}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 truncate">
-                          <p className="font-semibold text-gray-900 truncate">
-                            {library.name}
-                          </p>
-                        </div>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // Ngăn click nhầm vào vùng chọn Library
-                            handleDeleteLibrary(library.id);
-                          }}
-                          className="p-1 text-gray-400 hover:text-red-500 transition"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+    <div className="min-h-screen bg-page text-text-primary animate-fade-slide-in flex flex-col overflow-hidden">
+      {/* PAGE HEADER */}
+      <div className="w-full border-b border-border-default bg-page/40 backdrop-blur-xl z-[100] flex-shrink-0">
+        <div className="max-w-[1800px] mx-auto px-8 py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-5">
+            <div className="p-3 bg-accent/10 text-accent rounded-2xl shadow-lg shadow-accent/5">
+              <Library size={28} />
+            </div>
+            <div className="flex flex-col">
+              <h1 className="text-3xl font-bold font-display tracking-tight text-text-primary">Flashcard Library</h1>
+              <p className="text-text-secondary text-sm mt-1 font-medium">{libraries.length} active libraries · Scroll right to see more</p>
             </div>
           </div>
 
-          {/* CỘT PHẢI - QUẢN LÝ FLASHCARDS CỦA LIBRARY */}
-          <div className="lg:col-span-3">
-            {selectedLibraryId ? (
-              <div>
-                <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-sm flex justify-between items-center">
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-900">
-                      {currentLibrary?.name}
-                    </h2>
-                    <p className="text-gray-600 mt-1">
-                      {cards.length} Flashcards
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setEditingCardId(null);
-                      setIsFormOpen(true);
-                    }}
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition-all flex items-center gap-2 shadow-md"
-                  >
-                    <Plus size={20} /> Thêm Thẻ Mới
-                  </button>
-                </div>
-
-                {/* Danh sách các Flashcards */}
-                <CardList
-                  cards={cards}
-                  selectedTopic={selectedTopic}
-                  searchTerm={searchTerm}
-                  onEdit={handleEditCard}
-                  onDelete={handleDeleteCard}
-                  onSpeak={handleSpeak}
-                />
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md relative">
+            <div className="relative group">
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <Search size={18} className="text-text-secondary group-focus-within:text-accent transition-colors" />
               </div>
-            ) : (
-              <div className="bg-white rounded-xl border border-gray-200 p-12 text-center shadow-sm">
-                <p className="text-xl text-gray-500 mb-6">
-                  Hãy chọn một thư viện hoặc tạo mới để bắt đầu
-                </p>
-                <button
-                  onClick={() => setShowLibraryForm(true)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-all inline-flex items-center gap-2"
-                >
-                  <Plus size={20} /> Tạo Thư Viện Đầu Tiên
-                </button>
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={handleSearch}
+                placeholder="Search public libraries..."
+                className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-11 pr-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+              />
+              {isSearching && (
+                <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+                  <Loader2 size={16} className="text-accent animate-spin" />
+                </div>
+              )}
+            </div>
+
+            {/* Search Results Dropdown */}
+            {showSearchResults && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-slate-200 rounded-2xl shadow-2xl z-[200] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="p-2 max-h-[400px] overflow-y-auto">
+                  {searchResults.length > 0 ? (
+                    searchResults.map((result) => (
+                      <div
+                        key={result.id}
+                        onClick={() => {
+                          navigate(`/library/${result.id}`);
+                          setShowSearchResults(false);
+                        }}
+                        className="flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors group"
+                      >
+                        <div className="p-2 bg-blue-50 text-accent rounded-lg group-hover:bg-accent group-hover:text-white transition-colors">
+                          <Library size={16} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-bold text-slate-900 truncate">{result.name}</h4>
+                          <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">{result.description || "No description"}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="flex items-center gap-1 text-[10px] font-bold text-accent uppercase tracking-wider bg-blue-50 px-2 py-0.5 rounded-md">
+                              <Users size={10} />
+                              {result.learnerName || "Other User"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-8 text-center">
+                      <p className="text-sm text-slate-500 font-medium">No public libraries found matching `{searchTerm}`</p>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
+
+          <Button 
+            variant="primary" 
+            onClick={() => { setEditingItem(null); setShowLibraryModal(true); }}
+            className="shadow-[0_0_25px_rgba(59,125,255,0.25)] h-12 px-8 whitespace-nowrap"
+          >
+            <Plus size={18} /> Thư Viện Mới
+          </Button>
         </div>
       </div>
 
-      {/* CÁC MODALS */}
-      <FlashcardModal
-        isOpen={isFormOpen}
-        onClose={() => {
-          setIsFormOpen(false);
-          setEditingCardId(null);
-        }}
-        onSubmit={handleSaveCard}
-        initialData={editingCard}
-        topics={uniqueTopics.filter((t) => t !== "All")}
-      />
+      {/* HORIZONTAL KANBAN AREA */}
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full px-8 py-10">
+          <KanbanBoard
+            libraries={libraries}
+            cardsByLibrary={cardsByLibrary}
+            isLoading={isLoading}
+            dragOverLibraryId={dragOverLibraryId}
+            onEditLibrary={handleOpenEditLibrary}
+            onDeleteLibrary={handleDeleteLibrary}
+            onAddCard={handleOpenAddCard}
+            onEditCard={handleOpenEditCard}
+            onDeleteCard={handleDeleteCard}
+            onClickCard={handleClickCard}
+            onDragStart={handleDragStart}
+            onDragEnd={handleDragEnd}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onOpenCreateLibrary={() => { setEditingItem(null); setShowLibraryModal(true); }}
+          />
+        </div>
+      </div>
 
-      <LibraryModal
-        isOpen={showLibraryForm}
-        onClose={() => setShowLibraryForm(false)}
-        onSubmit={handleCreateLibrary}
+      <LibraryModal 
+        isOpen={showLibraryModal} 
+        onClose={handleCloseModals} 
+        onSubmit={handleCreateLibrary} 
+        initialData={editingItem?.type === 'LIBRARY' ? editingItem : null}
+      />
+      <FlashcardModal
+        key={editingItem?.id || 'card-new'}
+        isOpen={showCardModal}
+        onClose={handleCloseModals}
+        onSubmit={handleCreateFlashcard}
+        targetLibraryId={targetLibraryId}
+        initialData={editingItem && editingItem.type === 'FLASHCARD' ? editingItem : null}
       />
     </div>
   );

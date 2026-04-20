@@ -1,45 +1,50 @@
 // src/hooks/useGoogleAuth.js
 import { useState } from "react";
 import { message } from "antd";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "./useAuth";
 import { loginWithGoogleAPI } from "../service/api/api.auth";
 
 export const useGoogleAuth = () => {
     const { loginWithGoogle, loginSuccess } = useAuth();
     const [isAuthLoading, setIsAuthLoading] = useState(false);
 
-    const handleGoogleLogin = async () => {
+    const handleGoogleLogin = async (onSuccessCallback) => {
         try {
             setIsAuthLoading(true);
 
-            // 1. Gọi Firebase lấy Token (Giống hệt file HTML bạn test)
+            // 1. Gọi Firebase lấy Token
             const firebaseUser = await loginWithGoogle();
             const idToken = await firebaseUser.getIdToken();
 
             // 2. Gửi Token xuống Spring Boot
             const res = await loginWithGoogleAPI(idToken);
+            console.log("🔍 API Login Response Data:", res.data); // DEBUG DỮ LIỆU BACKEND
 
-            // 3. XỬ LÝ KẾT QUẢ (Sửa lại đoạn này cho khớp ApiResponse.java)
-            // 'res' lúc này chính là object {status: 200, message: "...", data: {...}}
-            if (res && res.status === 200) {
-                const authResponseData = res.data; // Đây là AuthResponse (token, fullName...)
-
+            // 3. XỬ LÝ KẾT QUẢ
+            if (res && (res.status === 200 || res.status === 201)) {
+                const authResponseData = res.data;
                 message.success(`Chào mừng ${authResponseData.fullName}!`);
 
-                // Lưu vào Context
-                loginSuccess(authResponseData.accessToken, {
-                    role: authResponseData.role,
-                    name: authResponseData.fullName,
-                    email: authResponseData.email,
-                    learnerId: authResponseData.learnerId
-                });
-            } else {
-                // Nếu backend trả về status khác 200
-                message.error(res?.message || "Xác thực Backend thất bại!");
+                loginSuccess(
+                    authResponseData.accessToken, 
+                    authResponseData.refreshToken,
+                    {
+                        learnerId: authResponseData.learnerId,
+                        role: authResponseData.role,
+                        name: authResponseData.fullName,
+                        email: authResponseData.email,
+                    }
+                );
+
+                if (typeof onSuccessCallback === "function") {
+                    onSuccessCallback();
+                }
             }
         } catch (error) {
+
             console.error("Lỗi đăng nhập:", error);
-            message.error("Đăng nhập thất bại hoặc đã bị hủy.");
+            // 'error' lúc này chính là error.response.data được reject từ interceptor
+            message.error(error?.message || "Đăng nhập thất bại hoặc đã bị hủy.");
         } finally {
             setIsAuthLoading(false);
         }

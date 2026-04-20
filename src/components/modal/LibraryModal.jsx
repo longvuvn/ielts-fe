@@ -1,58 +1,121 @@
-// src/components/modal/LibraryModal.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import Button from "../../components/button/button.home";
 
-const LibraryModal = ({ isOpen, onClose, onSubmit }) => {
-  const [newLibraryName, setNewLibraryName] = useState("");
+const LibraryModal = ({ isOpen, onClose, onSubmit, initialData }) => {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [isPublic, setIsPublic] = useState(true);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!newLibraryName.trim()) return;
-    onSubmit(newLibraryName);
-    setNewLibraryName(""); // Reset form sau khi submit
-  };
+  // Sync state when modal opens or initialData changes
+  // If initialData is null, it's "Create" mode (reset form)
+  // If initialData exists, it's "Edit" mode (load data)
+  useEffect(() => {
+    if (isOpen) {
+      setName(initialData?.name || "");
+      setDescription(initialData?.description || "");
+      
+      const val = initialData?.is_Public;
+      // Handle various boolean formats from API
+      setIsPublic(val === true || val === "True" || val === "true" || val === undefined);
+    }
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
+  const handleClose = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    onClose();
+  };
+
+  const handleSubmit = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (!name.trim()) return;
+    
+    onSubmit({ 
+      name: name.trim(), 
+      description: description.trim(), 
+      is_Public: isPublic 
+    });
+  };
+
+  const isEditMode = !!initialData;
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900">
-            Create New Library
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition"
+    <div 
+      className="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-start justify-center z-[999] p-6 pt-[10vh]" 
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(e); }}
+    >
+      <div 
+        className="bg-white border border-slate-200 rounded-[32px] p-8 w-full max-w-md shadow-2xl animate-fade-slide-in relative" 
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h3 className="text-slate-900 font-display text-2xl font-bold tracking-tight">
+              {isEditMode ? "Chỉnh sửa Thư Viện" : "Tạo Thư Viện Mới"}
+            </h3>
+            <p className="text-slate-500 text-xs mt-1 font-medium">
+              {isEditMode ? "Cập nhật thông tin kho từ vựng của bạn" : "Bắt đầu xây dựng kho lưu trữ từ vựng của bạn"}
+            </p>
+          </div>
+          <button 
+            type="button"
+            onClick={handleClose} 
+            className="p-2.5 rounded-2xl text-slate-400 hover:text-slate-900 hover:bg-slate-50 transition-all border border-transparent hover:border-slate-100"
           >
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <input
-            type="text"
-            value={newLibraryName}
-            onChange={(e) => setNewLibraryName(e.target.value)}
-            placeholder="Enter library name..."
-            className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-blue-500 focus:outline-none transition-all"
-            autoFocus
-          />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2.5 ml-1">Tên thư viện *</label>
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ví dụ: IELTS Vocabulary"
+              className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl px-5 py-4 text-slate-900 font-bold placeholder-slate-300 outline-none transition-all focus:border-blue-500/20 focus:bg-white focus:ring-4 focus:ring-blue-500/5"
+            />
+          </div>
 
-          <div className="flex gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 text-gray-700 font-semibold hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-3 rounded-lg bg-black text-white font-semibold hover:bg-gray-800"
-            >
-              Create
-            </button>
+          <div>
+            <label className="block text-slate-400 text-[10px] font-black uppercase tracking-widest mb-2.5 ml-1">Mô tả</label>
+            <input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder={isEditMode ? "Cập nhật mô tả..." : "Nhập mô tả ngắn cho thư viện này..."}
+              className="w-full bg-slate-50 border-2 border-slate-50 rounded-2xl px-5 py-4 text-slate-900 font-bold placeholder-slate-300 outline-none transition-all focus:border-blue-500/20 focus:bg-white focus:ring-4 focus:ring-blue-500/5"
+            />
+          </div>
+
+          <div 
+            className="flex items-center gap-4 p-5 rounded-2xl bg-slate-50 border-2 border-slate-50 cursor-pointer group transition-all hover:bg-white hover:border-blue-500/10" 
+            onClick={() => setIsPublic(!isPublic)}
+          >
+            <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${isPublic ? 'bg-blue-600 border-blue-600 shadow-lg shadow-blue-500/20' : 'border-slate-200 group-hover:border-slate-300'}`}>
+              {isPublic && <div className="w-2.5 h-2.5 bg-white rounded-[2px]" />}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-slate-900 text-sm font-bold leading-tight">Công khai thư viện</span>
+              <span className="text-slate-400 text-[10px] font-bold mt-0.5 uppercase tracking-tight">Mọi người có thể xem thư viện này</span>
+            </div>
+          </div>
+
+          <div className="flex gap-4 justify-end mt-12 pt-2">
+            <Button variant="ghost" type="button" onClick={handleClose} className="h-14 px-8 rounded-2xl font-bold border border-slate-100">
+              Hủy bỏ
+            </Button>
+            <Button variant="primary" type="submit" className="h-14 px-10 rounded-2xl shadow-2xl shadow-blue-500/20 font-bold">
+              {isEditMode ? "Cập nhật" : "Tạo Thư Viện"}
+            </Button>
           </div>
         </form>
       </div>
