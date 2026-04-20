@@ -1,16 +1,54 @@
-# React + Vite
+# IELTS Frontend (ielts-fe)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Project Structure
 
-Currently, two official plugins are available:
+```
+ielts-fe/
+├── .gitignore
+├── README.md
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+├── vite.config.js
+├── public/
+│   └── vite.svg
+└── src/
+    ├── App.jsx
+    ├── index.css
+    ├── main.jsx
+    ├── app/
+    ├── components/
+    ├── config/
+    ├── contexts/
+    ├── hook/
+    ├── pages/
+    ├── routers/
+    ├── service/
+    └── utils/
+```
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Description
 
-## React Compiler
+**ielts-fe** is a front-end project, built with React and Vite, designed for an IELTS-related application. It uses Tailwind CSS for styling and follows a modular structure for scalability and maintainability.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## How to Run
 
-## Expanding the ESLint configuration
+1. Install dependencies:
+   ```
+   npm install
+   ```
+2. Start the development server:
+   ```
+   npm run dev
+   ```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Main Features
+
+- Modular React components
+- Tailwind CSS integration
+- Organized folder structure for scalability
+
+[![Watch the demo](https://img.youtube.com/vi/5rBplLmDcOI/maxresdefault.jpg)](https://www.youtube.com/watch?v=5rBplLmDcOI)
